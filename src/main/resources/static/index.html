@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFix — Same-Day Appliance Repair</title>
+    <meta name="description" content="Professional same-day appliance repair. Certified technicians, upfront pricing, 90-day warranty.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar" id="navbar">
+    <div class="container nav-inner">
+        <a href="#" class="logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">MasterFix</span>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#services">Services</a></li>
+            <li><a href="#why-us">Why Us</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="tel:+18889986263" class="nav-phone">(888) 998-6263</a>
+            <button class="btn btn-primary btn-sm" onclick="openBookingModal()">Book Now</button>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+        <div class="hero-badge">✦ Trusted by 1M+ customers nationwide</div>
+        <h1>Same-Day<br><span class="gradient-text">Appliance Repair</span></h1>
+        <p class="hero-sub">Certified technicians at your door today. Upfront pricing, no hidden fees, and a warranty on every repair.</p>
+        <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" onclick="openBookingModal()">
+                Book a Service
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <a href="tel:+18889986263" class="btn btn-outline btn-lg">Call Now</a>
+        </div>
+        <div class="hero-trust">
+            <div class="trust-item"><span class="trust-num">4.9★</span> Google Rating</div>
+            <div class="trust-divider"></div>
+            <div class="trust-item"><span class="trust-num">98%</span> Satisfaction</div>
+            <div class="trust-divider"></div>
+            <div class="trust-item"><span class="trust-num">15+</span> Years Experience</div>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-card">
+            <div class="hero-card-header">
+                <span class="status-dot"></span> Technician en route
+            </div>
+            <div class="hero-card-body">
+                <div class="tech-avatar">👨‍🔧</div>
+                <div>
+                    <strong>Mike R.</strong>
+                    <span>Certified Tech · ETA 45 min</span>
+                </div>
+            </div>
+            <div class="hero-card-tags">
+                <span>Refrigerator</span>
+                <span>Same-Day</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features strip -->
+<section class="features-strip">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-chip"><span>✔</span> Same-Day Service</div>
+            <div class="feature-chip"><span>✔</span> Certified Technicians</div>
+            <div class="feature-chip"><span>✔</span> Upfront Pricing</div>
+            <div class="feature-chip"><span>✔</span> 90-Day Warranty</div>
+            <div class="feature-chip"><span>✔</span> $25 Off First Visit</div>
+        </div>
+    </div>
+</section>
+
+<!-- Services -->
+<section class="section" id="services">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Our Services</span>
+            <h2>We Repair All Major Appliances</h2>
+            <p>Residential and commercial — every brand, every model.</p>
+        </div>
+        <div class="tab-group" id="serviceTabs">
+            <button class="tab active" data-category="">All</button>
+            <button class="tab" data-category="residential">Residential</button>
+            <button class="tab" data-category="commercial">Commercial</button>
+        </div>
+        <div class="services-grid" id="servicesGrid">
+            <!-- Loaded dynamically -->
+        </div>
+        <div class="section-cta">
+            <button class="btn btn-primary" onclick="openBookingModal()">Schedule a Repair</button>
+        </div>
+    </div>
+</section>
+
+<!-- Why Us -->
+<section class="section section-alt" id="why-us">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Why MasterFix</span>
+            <h2>Built on Trust & Excellence</h2>
+        </div>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon">🎓</div>
+                <h3>Certified Techs</h3>
+                <p>Highly trained specialists for every appliance type, with years of hands-on experience.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🛡️</div>
+                <h3>Warranty Included</h3>
+                <p>90-day parts warranty and 30-day labor warranty on every repair we perform.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">⚡</div>
+                <h3>Same-Day Repairs</h3>
+                <p>We know a broken appliance disrupts your life. Most repairs completed the same day.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">💬</div>
+                <h3>Fast Response</h3>
+                <p>Our support team is ready to help. Book online or call — we respond within minutes.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">💰</div>
+                <h3>Transparent Pricing</h3>
+                <p>No hidden fees. You'll know the cost before we start any work on your appliance.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🏠</div>
+                <h3>Local & Insured</h3>
+                <p>Fully licensed and insured technicians serving your community with pride.</p>
+            </div>
+        </div>
+        <div class="stats-row">
+            <div class="stat"><span class="stat-num">15+</span><span class="stat-label">Years of Service</span></div>
+            <div class="stat"><span class="stat-num">1.1M+</span><span class="stat-label">Appliances Fixed</span></div>
+            <div class="stat"><span class="stat-num">2,400+</span><span class="stat-label">5-Star Reviews</span></div>
+            <div class="stat"><span class="stat-num">6</span><span class="stat-label">States Covered</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- Reviews -->
+<section class="section" id="reviews">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Testimonials</span>
+            <h2>What Our Customers Say</h2>
+        </div>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p>"Technician arrived within 2 hours. Fixed my refrigerator quickly and explained everything. Highly recommend!"</p>
+                <div class="reviewer"><strong>Sarah M.</strong> · Houston, TX</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p>"Upfront pricing with no surprises. My washer works perfectly now. The online booking was super easy."</p>
+                <div class="reviewer"><strong>James K.</strong> · Chicago, IL</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p>"Professional, courteous, and fast. They saved me from buying a new oven. MasterFix is my go-to from now on."</p>
+                <div class="reviewer"><strong>Linda P.</strong> · Boston, MA</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section section-alt" id="faq">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">FAQ</span>
+            <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-list" id="faqList">
+            <div class="faq-item">
+                <button class="faq-question">What types of appliances do you repair?</button>
+                <div class="faq-answer"><p>We repair all major residential and commercial appliances including refrigerators, washers, dryers, dishwashers, ovens, ranges, microwaves, freezers, ice machines, and more.</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Do you offer same-day service?</button>
+                <div class="faq-answer"><p>Yes! We offer same-day and next-day service Monday through Saturday, 8 AM to 8 PM. Book online or call us to check availability in your area.</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">What warranties do you provide?</button>
+                <div class="faq-answer"><p>Every repair includes a 90-day parts warranty and 30-day labor warranty. Refrigerator sealed-system repairs come with up to 1 year of extended coverage.</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Are there any discounts available?</button>
+                <div class="faq-answer"><p>New customers save $25 on their first visit. We also offer discounts for seniors, military/veterans, and online bookings.</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">How do I book an appointment?</button>
+                <div class="faq-answer"><p>Click "Book Now" on our website, fill in your details, choose a date and time slot, and you're all set. You can also call (888) 998-6263.</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Will I be charged if the appliance can't be fixed?</button>
+                <div class="faq-answer"><p>You pay a diagnostic/service fee. If we can't repair your appliance, you only pay the service call fee — no repair charges apply.</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section class="section" id="contact">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <span class="section-tag">Contact Us</span>
+                <h2>Have a Question?</h2>
+                <p>Reach out and our team will respond promptly.</p>
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <span class="contact-icon">📞</span>
+                        <div><strong>Phone</strong><a href="tel:+18889986263">(888) 998-6263</a></div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">✉️</span>
+                        <div><strong>Email</strong><a href="mailto:info@masterfix.com">info@masterfix.com</a></div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">📍</span>
+                        <div><strong>Headquarters</strong><span>1718 N Fry Rd #152, Houston, TX 77084</span></div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">🕐</span>
+                        <div><strong>Hours</strong><span>Mon–Sat, 8:00 AM – 8:00 PM</span></div>
+                    </div>
+                </div>
+            </div>
+            <form class="contact-form" id="contactForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contactName">Full Name</label>
+                        <input type="text" id="contactName" name="fullName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">Phone</label>
+                        <input type="tel" id="contactPhone" name="phone" required placeholder="(555) 123-4567">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">Email</label>
+                    <input type="email" id="contactEmail" name="email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="contactMessage">Message</label>
+                    <textarea id="contactMessage" name="message" rows="4" required placeholder="How can we help you?"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                <div class="form-feedback" id="contactFeedback"></div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">MasterFix</span>
+                </a>
+                <p>Professional appliance repair you can trust. Same-day service, certified technicians, upfront pricing.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="#services">Residential</a></li>
+                    <li><a href="#services">Commercial</a></li>
+                    <li><a href="#" onclick="openBookingModal(); return false;">Book Online</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#why-us">About Us</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:+18889986263">(888) 998-6263</a></li>
+                    <li><a href="mailto:info@masterfix.com">info@masterfix.com</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MasterFix Appliance Repair, LLC. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeBookingModal()" aria-label="Close">&times;</button>
+
+        <!-- Step indicators -->
+        <div class="booking-steps" id="bookingSteps">
+            <div class="step active" data-step="1"><span>1</span> Service</div>
+            <div class="step" data-step="2"><span>2</span> Details</div>
+            <div class="step" data-step="3"><span>3</span> Schedule</div>
+            <div class="step" data-step="4"><span>4</span> Confirm</div>
+        </div>
+
+        <form id="bookingForm">
+            <!-- Step 1: Select Service -->
+            <div class="booking-panel active" data-panel="1">
+                <h3>Select Your Appliance</h3>
+                <p class="panel-desc">What needs to be repaired?</p>
+                <div class="appliance-select" id="applianceSelect">
+                    <!-- Loaded dynamically -->
+                </div>
+                <div class="panel-actions">
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)" id="step1Next" disabled>Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Personal Details -->
+            <div class="booking-panel" data-panel="2">
+                <h3>Your Information</h3>
+                <p class="panel-desc">Tell us how to reach you.</p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" name="fullName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone *</label>
+                        <input type="tel" name="phone" required placeholder="(555) 123-4567">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Street Address *</label>
+                    <input type="text" name="address" required placeholder="123 Main St">
+                </div>
+                <div class="form-row form-row-3">
+                    <div class="form-group">
+                        <label>City *</label>
+                        <input type="text" name="city" required placeholder="Houston">
+                    </div>
+                    <div class="form-group">
+                        <label>State *</label>
+                        <input type="text" name="state" required placeholder="TX">
+                    </div>
+                    <div class="form-group">
+                        <label>Zip *</label>
+                        <input type="text" name="zipCode" required placeholder="77084">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Describe the issue</label>
+                    <textarea name="description" rows="3" placeholder="e.g. Refrigerator not cooling, making loud noise..."></textarea>
+                </div>
+                <div class="panel-actions">
+                    <button type="button" class="btn btn-ghost" onclick="prevStep(1)">Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Schedule -->
+            <div class="booking-panel" data-panel="3">
+                <h3>Pick Date & Time</h3>
+                <p class="panel-desc">Choose your preferred appointment slot.</p>
+                <div class="form-group">
+                    <label>Preferred Date *</label>
+                    <input type="date" name="preferredDate" id="preferredDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Available Time Slots *</label>
+                    <div class="time-slots" id="timeSlots">
+                        <p class="slots-hint">Select a date to see available times</p>
+                    </div>
+                    <input type="hidden" name="preferredTime" id="preferredTime">
+                </div>
+                <div class="panel-actions">
+                    <button type="button" class="btn btn-ghost" onclick="prevStep(2)">Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(4)" id="step3Next" disabled>Review Booking</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Review & Confirm -->
+            <div class="booking-panel" data-panel="4">
+                <h3>Review Your Booking</h3>
+                <p class="panel-desc">Please confirm your appointment details.</p>
+                <div class="booking-summary" id="bookingSummary"></div>
+                <div class="panel-actions">
+                    <button type="button" class="btn btn-ghost" onclick="prevStep(3)">Back</button>
+                    <button type="submit" class="btn btn-primary" id="submitBooking">
+                        Confirm Booking
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Success State -->
+        <div class="booking-success" id="bookingSuccess" hidden>
+            <div class="success-icon">✓</div>
+            <h3>Booking Confirmed!</h3>
+            <p>Your appointment has been scheduled. A confirmation email will be sent shortly.</p>
+            <div class="confirmation-details" id="confirmationDetails"></div>
+            <button class="btn btn-primary" onclick="closeBookingModal()">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
