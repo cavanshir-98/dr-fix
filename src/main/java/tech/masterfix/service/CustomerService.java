@@ -1,8 +1,10 @@
 package tech.masterfix.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tech.masterfix.config.AdminUserDetailsService;
 import tech.masterfix.dto.CustomerProfileResponse;
 import tech.masterfix.dto.RegisterRequest;
 import tech.masterfix.model.Customer;
@@ -13,10 +15,14 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AdminUserDetailsService adminUserDetailsService;
 
-    public CustomerService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
+    public CustomerService(CustomerRepository customerRepository,
+                           PasswordEncoder passwordEncoder,
+                           AdminUserDetailsService adminUserDetailsService) {
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
+        this.adminUserDetailsService = adminUserDetailsService;
     }
 
     @Transactional
@@ -26,8 +32,13 @@ public class CustomerService {
         }
 
         String email = request.getEmail().trim().toLowerCase();
+
+        if (adminUserDetailsService.isAdminEmail(email)) {
+            throw new IllegalArgumentException("This email is reserved. Please use a different email or sign in as admin.");
+        }
+
         if (customerRepository.existsByEmailIgnoreCase(email)) {
-            throw new IllegalArgumentException("Email is already registered");
+            throw new IllegalArgumentException("This email is already registered. Please sign in instead.");
         }
 
         Customer customer = new Customer();
@@ -36,8 +47,12 @@ public class CustomerService {
         customer.setPhone(request.getPhone().trim());
         customer.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
-        Customer saved = customerRepository.save(customer);
-        return toProfile(saved);
+        try {
+            Customer saved = customerRepository.save(customer);
+            return toProfile(saved);
+        } catch (DataIntegrityViolationException ex) {
+            throw new IllegalArgumentException("This email is already registered. Please sign in instead.");
+        }
     }
 
     public Customer getByEmail(String email) {

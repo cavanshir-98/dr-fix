@@ -2,6 +2,7 @@ package tech.masterfix.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,18 +24,58 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                          AuthHandlers authHandlers,
-                                          ApiAuthenticationEntryPoint apiAuthenticationEntryPoint) throws Exception {
+    @Order(1)
+    SecurityFilterChain adminSecurityFilterChain(HttpSecurity http,
+                                                 AuthHandlers authHandlers,
+                                                 AdminUserDetailsService adminUserDetailsService) throws Exception {
+        http
+                .securityMatcher(new OrRequestMatcher(
+                        new AntPathRequestMatcher("/login.html"),
+                        new AntPathRequestMatcher("/login/admin"),
+                        new AntPathRequestMatcher("/admin.html"),
+                        new AntPathRequestMatcher("/admin/**"),
+                        new AntPathRequestMatcher("/api/bookings", "GET")
+                ))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login.html", "/login/admin").permitAll()
+                        .anyRequest().hasRole("ADMIN")
+                )
+                .userDetailsService(adminUserDetailsService)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login.html"))
+                )
+                .formLogin(form -> form
+                        .loginPage("/login.html")
+                        .loginProcessingUrl("/login/admin")
+                        .successHandler(authHandlers)
+                        .failureHandler(authHandlers)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                        .logoutSuccessUrl("/?logout=1")
+                        .permitAll()
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    SecurityFilterChain appSecurityFilterChain(HttpSecurity http,
+                                               AuthHandlers authHandlers,
+                                               ApiAuthenticationEntryPoint apiAuthenticationEntryPoint,
+                                               CustomerUserDetailsService customerUserDetailsService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
                                 "/index.html",
-                                "/login.html",
                                 "/register.html",
                                 "/account/login.html",
+                                "/login/customer",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
@@ -45,11 +86,10 @@ public class SecurityConfig {
                                 "/api/contact"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("CUSTOMER")
-                        .requestMatchers("/admin.html", "/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/bookings").hasRole("ADMIN")
                         .requestMatchers("/account.html", "/api/account/**").hasAnyRole("CUSTOMER", "ADMIN")
                         .anyRequest().permitAll()
                 )
+                .userDetailsService(customerUserDetailsService)
                 .exceptionHandling(ex -> ex
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint("/account/login.html"),
@@ -62,17 +102,10 @@ public class SecurityConfig {
                                 apiAuthenticationEntryPoint,
                                 new AntPathRequestMatcher("/api/bookings", "POST")
                         )
-                        .defaultAuthenticationEntryPointFor(
-                                new LoginUrlAuthenticationEntryPoint("/login.html"),
-                                new OrRequestMatcher(
-                                        new AntPathRequestMatcher("/admin.html"),
-                                        new AntPathRequestMatcher("/api/bookings", "GET")
-                                )
-                        )
                 )
                 .formLogin(form -> form
                         .loginPage("/account/login.html")
-                        .loginProcessingUrl("/login")
+                        .loginProcessingUrl("/login/customer")
                         .successHandler(authHandlers)
                         .failureHandler(authHandlers)
                         .permitAll()

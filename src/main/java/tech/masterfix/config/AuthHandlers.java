@@ -27,8 +27,8 @@ public class AuthHandlers implements AuthenticationSuccessHandler, Authenticatio
                                         HttpServletResponse response,
                                         org.springframework.security.core.AuthenticationException exception)
             throws IOException {
-        String referer = request.getHeader("Referer");
-        if (referer != null && referer.contains("/account/login")) {
+        String uri = request.getRequestURI();
+        if (uri.contains("/login/customer")) {
             response.sendRedirect("/account/login.html?error=1");
         } else {
             response.sendRedirect("/login.html?error=1");
