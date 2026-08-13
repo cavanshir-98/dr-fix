@@ -2,6 +2,7 @@ const API = '/api';
 let currentStep = 1;
 let selectedAppliance = '';
 let allServices = [];
+let loggedInCustomer = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     initNavbar();
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBookingForm();
     initContactForm();
     initDatePicker();
+    initAccountNav().then(customer => { loggedInCustomer = customer; });
 });
 
 /* ===== Navbar scroll ===== */
@@ -105,10 +107,20 @@ function selectApplianceAndBook(name) {
 }
 
 /* ===== Booking Modal ===== */
-function openBookingModal() {
+async function openBookingModal() {
+    loggedInCustomer = await fetchLoggedInCustomer();
+    if (!loggedInCustomer) {
+        showToast('Please register before booking', 'error');
+        setTimeout(() => {
+            window.location.href = '/register.html';
+        }, 1200);
+        return;
+    }
+
     document.getElementById('bookingModal').classList.add('active');
     document.body.style.overflow = 'hidden';
     resetBookingForm();
+    applyCustomerProfileToBookingForm(loggedInCustomer);
 }
 
 function closeBookingModal() {
@@ -123,6 +135,12 @@ function resetBookingForm() {
     document.getElementById('bookingForm').hidden = false;
     document.getElementById('bookingSuccess').hidden = true;
     document.getElementById('bookingSteps').hidden = false;
+    document.getElementById('viewBookingsBtn').hidden = true;
+    const whatsappBtn = document.getElementById('whatsappNotifyBtn');
+    if (whatsappBtn) {
+        whatsappBtn.hidden = true;
+        whatsappBtn.classList.remove('pulse');
+    }
     document.getElementById('preferredTime').value = '';
     document.getElementById('timeSlots').innerHTML = '<p class="slots-hint">Select a date to see available times</p>';
     document.querySelectorAll('.appliance-option').forEach(o => o.classList.remove('selected'));
@@ -270,9 +288,16 @@ function initBookingForm() {
             const res = await fetch(`${API}/bookings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
                 body: JSON.stringify(payload)
             });
             const json = await res.json();
+
+            if (res.status === 401 || res.status === 403) {
+                showToast('Please register and sign in to book', 'error');
+                setTimeout(() => { window.location.href = '/register.html'; }, 1200);
+                return;
+            }
 
             if (json.success) {
                 showBookingSuccess(json.data);
@@ -308,6 +333,43 @@ function showBookingSuccess(data) {
         <div class="summary-row"><span class="label">Time</span><span class="value">${formatTime(data.preferredTime)}</span></div>
         <div class="summary-row"><span class="label">Address</span><span class="value">${data.address}, ${data.city}, ${data.state}</span></div>
     `;
+
+    const whatsappBtn = document.getElementById('whatsappNotifyBtn');
+    const whatsappHint = document.getElementById('whatsappHint');
+
+    if (data.ownerNotified || data.whatsappAutoSent) {
+        if (whatsappBtn) whatsappBtn.hidden = true;
+        if (whatsappHint) {
+            const via = data.notifyChannel === 'telegram' ? 'Telegram' : 'WhatsApp';
+            whatsappHint.textContent = `Booking confirmed! We notified our team via ${via}.`;
+        }
+        showToast('Booking confirmed — notification sent', 'success');
+    } else if (whatsappBtn && data.whatsappUrl) {
+        whatsappBtn.href = data.whatsappUrl;
+        whatsappBtn.hidden = false;
+        whatsappBtn.classList.add('pulse');
+        if (whatsappHint) {
+            whatsappHint.innerHTML = 'Please tap the button below to open WhatsApp and press <strong>Send</strong> so we receive your booking.';
+        }
+        showToast('Booking confirmed — please send the WhatsApp message', 'success');
+        openWhatsAppLink(data.whatsappUrl);
+    } else {
+        if (whatsappBtn) whatsappBtn.hidden = true;
+        showToast('Booking saved successfully', 'success');
+    }
+
+    const accountBtn = document.getElementById('viewBookingsBtn');
+    if (accountBtn) accountBtn.hidden = false;
+}
+
+function openWhatsAppLink(url) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 }
 
 /* ===== Contact Form ===== */
@@ -369,4 +431,24 @@ function showToast(message, type = 'success') {
     toast.textContent = message;
     toast.className = `toast ${type} show`;
     setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+function applyCustomerProfileToBookingForm(profile) {
+    const form = document.getElementById('bookingForm');
+    if (!form || !profile) return;
+
+    const fullName = form.querySelector('[name="fullName"]');
+    const phone = form.querySelector('[name="phone"]');
+    const email = form.querySelector('[name="email"]');
+
+    if (fullName) fullName.value = profile.fullName;
+    if (phone) phone.value = profile.phone;
+    if (email) email.value = profile.email;
+}
+
+async function loadCustomerProfileForBooking() {
+    if (!loggedInCustomer) {
+        loggedInCustomer = await fetchLoggedInCustomer();
+    }
+    applyCustomerProfileToBookingForm(loggedInCustomer);
 }

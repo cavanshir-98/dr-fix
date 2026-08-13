@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFix — Sign Up</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .auth-page {
+            min-height: 100vh; display: grid; place-items: center; padding: calc(var(--nav-height) + 1.5rem) 1.5rem 1.5rem;
+            background: linear-gradient(160deg, #f3f6f8 0%, #e7eef3 55%, #f8fafb 100%);
+        }
+        .auth-card {
+            width: min(100%, 460px); background: #fff; border: 1px solid rgba(0,0,0,.06);
+            border-radius: 16px; padding: 2rem; box-shadow: 0 12px 40px rgba(15, 23, 42, .08);
+        }
+        .auth-card h1 { margin: 0 0 .35rem; font-size: 1.5rem; }
+        .auth-card .sub { color: #667085; margin-bottom: 1.5rem; }
+        .auth-card label { display: block; font-size: .85rem; margin-bottom: .35rem; color: #344054; }
+        .auth-card input {
+            width: 100%; margin-bottom: 1rem; padding: .75rem .9rem;
+            border: 1px solid #d0d5dd; border-radius: 10px; font: inherit;
+        }
+        .auth-card .btn { width: 100%; }
+        .alert { padding: .75rem .9rem; border-radius: 10px; margin-bottom: 1rem; font-size: .9rem; }
+        .alert-error { background: #fef3f2; color: #b42318; }
+        .auth-links { margin-top: 1rem; font-size: .9rem; color: #667085; }
+        .auth-links a { color: #175cd3; }
+    </style>
+</head>
+<body>
+<header class="auth-topbar">
+    <div class="container auth-topbar-inner">
+        <a href="/" class="logo"><span class="logo-icon">⚡</span><span class="logo-text">MasterFix</span></a>
+        <nav class="auth-tabs">
+            <a href="/" class="tab">Home</a>
+            <a href="/register.html" class="tab active">Sign Up</a>
+            <a href="/account/login.html" class="tab">Sign In</a>
+            <a href="/account.html" class="tab">My Bookings</a>
+        </nav>
+    </div>
+</header>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Sign Up</h1>
+        <p class="sub">Create an account to book services and view your bookings</p>
+
+        <div id="feedback" class="alert" hidden></div>
+
+        <form id="registerForm">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" name="fullName" type="text" required>
+
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required>
+
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" required placeholder="+1 (555) 123-4567">
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" minlength="6" required>
+
+            <label for="confirmPassword">Confirm Password</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" minlength="6" required>
+
+            <button class="btn btn-primary" type="submit">Create Account</button>
+        </form>
+
+        <p class="auth-links">
+            Already have an account? <a href="/account/login.html">Sign in</a><br>
+            <a href="/">← Back to home</a>
+        </p>
+    </div>
+</div>
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const feedback = document.getElementById('feedback');
+    feedback.hidden = true;
+
+    const fd = new FormData(e.target);
+    const payload = Object.fromEntries(fd.entries());
+
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (json.success) {
+            window.location.href = '/account/login.html?registered=1';
+            return;
+        }
+
+        const msg = json.errors
+            ? Object.values(json.errors).flat().join(', ')
+            : json.message;
+        feedback.textContent = msg;
+        feedback.className = 'alert alert-error';
+        feedback.hidden = false;
+    } catch (err) {
+        feedback.textContent = 'Registration failed. Please try again.';
+        feedback.className = 'alert alert-error';
+        feedback.hidden = false;
+    }
+});
+</script>
+<script src="/js/auth.js"></script>
+<script>redirectIfAuthenticated();</script>
+</body>
+</html>

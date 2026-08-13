@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByPreferredDate(LocalDate date);
     Optional<Booking> findByIdAndEmail(Long id, String email);
+    List<Booking> findAllByOrderByCreatedAtDesc();
+    List<Booking> findByCustomerIdOrderByCreatedAtDesc(Long customerId);
 }

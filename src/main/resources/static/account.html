@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFix — My Bookings</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        @media (max-width: 800px) { .bookings-table { display: block; overflow-x: auto; } }
+    </style>
+</head>
+<body class="account-page">
+<header class="navbar scrolled" id="navbar">
+    <div class="container nav-inner">
+        <a href="/" class="logo"><span class="logo-icon">⚡</span><span class="logo-text">MasterFix</span></a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/account.html" class="active">My Bookings</a></li>
+        </ul>
+        <div class="nav-actions customer-nav">
+            <a class="btn btn-primary btn-sm" href="/">New Booking</a>
+            <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
+        </div>
+    </div>
+</header>
+
+<main class="account-wrap">
+    <h1>Customer Account</h1>
+    <p class="sub">Your profile and bookings</p>
+
+    <div class="tab-group account-tabs" id="accountTabs">
+        <button type="button" class="tab" data-tab="profile">Profile</button>
+        <button type="button" class="tab active" data-tab="bookings">My Bookings</button>
+    </div>
+
+    <section class="account-panel" id="profilePanel" hidden>
+        <div class="profile-card">
+            <h2>Profile Details</h2>
+            <div class="profile-grid" id="profileDetails">Loading...</div>
+        </div>
+    </section>
+
+    <section class="account-panel" id="bookingsPanel">
+        <div class="account-toolbar">
+            <h2 style="margin:0; color: var(--text);">Bookings</h2>
+            <span class="spacer"></span>
+            <a class="btn btn-primary btn-sm" href="/">New Booking</a>
+        </div>
+        <div id="bookingsRoot"><p class="account-empty">Loading...</p></div>
+    </section>
+</main>
+
+<script>
+document.querySelectorAll('#accountTabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('#accountTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const target = tab.dataset.tab;
+        document.getElementById('profilePanel').hidden = target !== 'profile';
+        document.getElementById('bookingsPanel').hidden = target !== 'bookings';
+    });
+});
+
+async function loadAccount() {
+    try {
+        const [profileRes, bookingsRes] = await Promise.all([
+            fetch('/api/account/me', { credentials: 'same-origin' }),
+            fetch('/api/account/bookings', { credentials: 'same-origin' })
+        ]);
+
+        if (profileRes.status === 401 || profileRes.status === 403) {
+            window.location.href = '/account/login.html';
+            return;
+        }
+
+        const profileJson = await profileRes.json();
+        const bookingsJson = await bookingsRes.json();
+
+        if (!profileJson.success) throw new Error(profileJson.message);
+
+        const p = profileJson.data;
+        document.getElementById('profileDetails').innerHTML = `
+            <div><strong>${escapeHtml(p.fullName)}</strong></div>
+            <div>${escapeHtml(p.email)}</div>
+            <div>${escapeHtml(p.phone)}</div>
+        `;
+
+        const rows = bookingsJson.success ? (bookingsJson.data || []) : [];
+        const root = document.getElementById('bookingsRoot');
+
+        if (!rows.length) {
+            root.innerHTML = `
+                <p class="account-empty">
+                    You don't have any bookings yet.<br>
+                    <a href="/">Book from the homepage</a> — bookings made while signed in will appear here.
+                </p>`;
+            return;
+        }
+
+        rows.sort((a, b) => {
+            const da = `${a.preferredDate}T${a.preferredTime || '00:00'}`;
+            const db = `${b.preferredDate}T${b.preferredTime || '00:00'}`;
+            return da.localeCompare(db);
+        });
+
+        root.innerHTML = `
+            <table class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Date / Time</th>
+                        <th>Address</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map(b => `
+                        <tr>
+                            <td><strong>${escapeHtml(b.confirmationCode)}</strong></td>
+                            <td><strong>${formatDate(b.preferredDate)}</strong><br><small>${formatTime(b.preferredTime)}</small></td>
+                            <td>${escapeHtml(b.address)}, ${escapeHtml(b.city)}, ${escapeHtml(b.state)}</td>
+                            <td>
+                                ${escapeHtml(b.applianceType)}
+                                ${b.description ? `<br><small>${escapeHtml(b.description)}</small>` : ''}
+                            </td>
+                            <td><span class="badge">${escapeHtml(b.status || '')}</span></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (e) {
+        document.getElementById('bookingsRoot').innerHTML =
+            '<p class="account-empty">Failed to load data. Please try again.</p>';
+    }
+}
+
+function escapeHtml(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function formatTime(timeStr) {
+    if (!timeStr) return '';
+    const parts = String(timeStr).split(':');
+    const hour = parseInt(parts[0], 10);
+    const minute = parts[1] || '00';
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 || 12;
+    return `${h12}:${minute} ${ampm}`;
+}
+
+loadAccount();
+</script>
+</body>
+</html>

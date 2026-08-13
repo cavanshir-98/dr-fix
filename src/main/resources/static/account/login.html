@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFix — Customer Sign In</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .auth-page {
+            min-height: 100vh; display: grid; place-items: center; padding: calc(var(--nav-height) + 1.5rem) 1.5rem 1.5rem;
+            background: linear-gradient(160deg, #f3f6f8 0%, #e7eef3 55%, #f8fafb 100%);
+        }
+        .auth-card {
+            width: min(100%, 420px); background: #fff; border: 1px solid rgba(0,0,0,.06);
+            border-radius: 16px; padding: 2rem; box-shadow: 0 12px 40px rgba(15, 23, 42, .08);
+        }
+        .auth-card h1 { margin: 0 0 .35rem; font-size: 1.5rem; }
+        .auth-card .sub { color: #667085; margin-bottom: 1.5rem; }
+        .auth-card label { display: block; font-size: .85rem; margin-bottom: .35rem; color: #344054; }
+        .auth-card input {
+            width: 100%; margin-bottom: 1rem; padding: .75rem .9rem;
+            border: 1px solid #d0d5dd; border-radius: 10px; font: inherit;
+        }
+        .auth-card .btn { width: 100%; }
+        .alert { padding: .75rem .9rem; border-radius: 10px; margin-bottom: 1rem; font-size: .9rem; }
+        .alert-error { background: #fef3f2; color: #b42318; }
+        .alert-ok { background: #ecfdf3; color: #027a48; }
+        .auth-links { margin-top: 1rem; font-size: .9rem; color: #667085; }
+        .auth-links a { color: #175cd3; }
+        .auth-card-actions { display: grid; gap: .75rem; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<header class="auth-topbar">
+    <div class="container auth-topbar-inner">
+        <a href="/" class="logo"><span class="logo-icon">⚡</span><span class="logo-text">MasterFix</span></a>
+        <nav class="auth-tabs">
+            <a href="/" class="tab">Home</a>
+            <a href="/register.html" class="tab">Sign Up</a>
+            <a href="/account/login.html" class="tab active">Sign In</a>
+            <a href="/account.html" class="tab">My Bookings</a>
+        </nav>
+    </div>
+</header>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Customer Sign In</h1>
+        <p class="sub">Sign in to view your bookings</p>
+
+        <div id="errorBox" class="alert alert-error" hidden>Invalid email or password.</div>
+        <div id="registeredBox" class="alert alert-ok" hidden>Registration successful. You can sign in now.</div>
+
+        <form method="post" action="/login">
+            <label for="username">Email</label>
+            <input id="username" name="username" type="email" autocomplete="username" required autofocus>
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+            <button class="btn btn-primary" type="submit">Sign In</button>
+        </form>
+
+        <div class="auth-card-actions">
+            <a href="/register.html" class="btn btn-outline">Create Account</a>
+        </div>
+
+        <p class="auth-links">
+            <a href="/">← Back to home</a>
+        </p>
+    </div>
+</div>
+<script>
+    const params = new URLSearchParams(location.search);
+    if (params.has('error')) document.getElementById('errorBox').hidden = false;
+    if (params.has('registered')) document.getElementById('registeredBox').hidden = false;
+</script>
+<script src="/js/auth.js"></script>
+<script>redirectIfAuthenticated();</script>
+</body>
+</html>

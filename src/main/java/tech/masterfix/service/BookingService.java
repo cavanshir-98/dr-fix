@@ -6,6 +6,7 @@ import tech.masterfix.dto.BookingRequest;
 import tech.masterfix.dto.BookingResponse;
 import tech.masterfix.model.Booking;
 import tech.masterfix.model.BookingStatus;
+import tech.masterfix.model.Customer;
 import tech.masterfix.repository.BookingRepository;
 
 import java.time.LocalDate;
@@ -20,19 +21,22 @@ public class BookingService {
     private static final LocalTime CLOSE_TIME = LocalTime.of(20, 0);
 
     private final BookingRepository bookingRepository;
+    private final BookingNotificationService bookingNotificationService;
 
-    public BookingService(BookingRepository bookingRepository) {
+    public BookingService(BookingRepository bookingRepository,
+                          BookingNotificationService bookingNotificationService) {
         this.bookingRepository = bookingRepository;
+        this.bookingNotificationService = bookingNotificationService;
     }
 
     @Transactional
-    public BookingResponse createBooking(BookingRequest request) {
+    public BookingResponse createBooking(BookingRequest request, Customer customer) {
         validateTimeSlot(request.getPreferredTime());
 
         Booking booking = new Booking();
-        booking.setFullName(request.getFullName());
-        booking.setPhone(request.getPhone());
-        booking.setEmail(request.getEmail());
+        booking.setFullName(customer != null ? customer.getFullName() : request.getFullName());
+        booking.setPhone(customer != null ? customer.getPhone() : request.getPhone());
+        booking.setEmail(customer != null ? customer.getEmail() : request.getEmail());
         booking.setAddress(request.getAddress());
         booking.setCity(request.getCity());
         booking.setState(request.getState());
@@ -42,15 +46,30 @@ public class BookingService {
         booking.setPreferredDate(request.getPreferredDate());
         booking.setPreferredTime(request.getPreferredTime());
         booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setCustomer(customer);
 
         Booking saved = bookingRepository.save(booking);
-        return toResponse(saved);
+        BookingResponse response = toResponse(saved);
+        bookingNotificationService.notifyOwner(response);
+        return response;
     }
 
     public BookingResponse getBooking(Long id, String email) {
         Booking booking = bookingRepository.findByIdAndEmail(id, email)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         return toResponse(booking);
+    }
+
+    public List<BookingResponse> getAllBookings() {
+        return bookingRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<BookingResponse> getCustomerBookings(Long customerId) {
+        return bookingRepository.findByCustomerIdOrderByCreatedAtDesc(customerId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     public List<String> getAvailableTimeSlots(LocalDate date) {

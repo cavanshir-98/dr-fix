@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFix — Admin Login</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .login-page {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 1.5rem;
+            background: linear-gradient(160deg, #f3f6f8 0%, #e7eef3 55%, #f8fafb 100%);
+        }
+        .login-card {
+            width: min(100%, 420px);
+            background: #fff;
+            border: 1px solid rgba(0,0,0,.06);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 12px 40px rgba(15, 23, 42, .08);
+        }
+        .login-card h1 {
+            margin: 0 0 .35rem;
+            font-size: 1.5rem;
+        }
+        .login-card .sub {
+            color: #667085;
+            margin-bottom: 1.5rem;
+        }
+        .login-card label {
+            display: block;
+            font-size: .85rem;
+            margin-bottom: .35rem;
+            color: #344054;
+        }
+        .login-card input {
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: .75rem .9rem;
+            border: 1px solid #d0d5dd;
+            border-radius: 10px;
+            font: inherit;
+        }
+        .login-card .btn { width: 100%; }
+        .alert {
+            padding: .75rem .9rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: .9rem;
+        }
+        .alert-error { background: #fef3f2; color: #b42318; }
+        .alert-ok { background: #ecfdf3; color: #027a48; }
+        .back-home { display: inline-block; margin-top: 1rem; color: #667085; font-size: .9rem; }
+    </style>
+</head>
+<body>
+<div class="login-page">
+    <div class="login-card">
+        <h1>Admin Login</h1>
+        <p class="sub">Admin panel only (view all bookings)</p>
+
+        <div id="errorBox" class="alert alert-error" hidden>Invalid username or password.</div>
+        <div id="logoutBox" class="alert alert-ok" hidden>You have been signed out.</div>
+
+        <form method="post" action="/login">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+            <button class="btn btn-primary" type="submit">Sign In</button>
+        </form>
+
+        <a class="back-home" href="/">← Back to home</a>
+    </div>
+</div>
+<script>
+    const params = new URLSearchParams(location.search);
+    if (params.has('error')) document.getElementById('errorBox').hidden = false;
+    if (params.has('logout')) document.getElementById('logoutBox').hidden = false;
+</script>
+</body>
+</html>
