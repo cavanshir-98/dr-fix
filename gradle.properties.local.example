@@ -1,0 +1,2 @@
+# Copy to gradle.properties.local (gitignored) for local Mac JAVA_HOME only:
+# org.gradle.java.home=/Users/YOU/Library/Java/JavaVirtualMachines/openjdk-21.0.1/Contents/Home

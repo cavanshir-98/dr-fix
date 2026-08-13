@@ -43,3 +43,10 @@ bin/
 
 ### Local database files ###
 data/
+
+### Local Gradle overrides (optional JAVA_HOME for Mac) ###
+gradle.properties.local
+
+### Secrets — never commit ###
+.env
+.env.local
