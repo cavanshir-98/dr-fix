@@ -1,5 +1,5 @@
-# Build stage
-FROM eclipse-temurin:17-jdk-jammy AS build
+# Build stage (linux/amd64 required by Render)
+FROM --platform=linux/amd64 eclipse-temurin:17-jdk-jammy AS build
 WORKDIR /app
 
 COPY gradlew .
@@ -10,7 +10,7 @@ COPY src src
 RUN chmod +x gradlew && ./gradlew bootJar -x test --no-daemon
 
 # Run stage
-FROM eclipse-temurin:17-jre-jammy
+FROM --platform=linux/amd64 eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
 COPY --from=build /app/build/libs/app.jar app.jar

@@ -1,0 +1,30 @@
+# Static frontend only — HTML/CSS/JS from Spring Boot resources.
+# IMPORTANT: This app needs a Java backend (API, login, bookings).
+# Deploy the full app on Render (Docker). Netlify alone cannot run Spring Boot.
+#
+# If you use Netlify for frontend + Render for backend, sessions/cookies
+# will NOT work across different domains — use Render for everything instead.
+
+[build]
+  publish = "src/main/resources/static"
+
+# Optional: proxy API to Render (replace with your Render URL after deploy).
+# Uncomment and set RENDER_URL if you split frontend/backend (not recommended).
+#
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://dr-fix.onrender.com/api/:splat"
+#   status = 200
+#   force = true
+#
+# [[redirects]]
+#   from = "/login"
+#   to = "https://dr-fix.onrender.com/login"
+#   status = 200
+#   force = true
+#
+# [[redirects]]
+#   from = "/logout"
+#   to = "https://dr-fix.onrender.com/logout"
+#   status = 200
+#   force = true
