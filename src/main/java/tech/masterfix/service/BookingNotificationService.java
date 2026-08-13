@@ -17,7 +17,6 @@ public class BookingNotificationService {
 
     public void notifyOwner(BookingResponse booking) {
         booking.setWhatsappUrl(whatsAppNotificationService.buildWaMeUrl(booking));
-
         if (telegramNotificationService.isConfigured()) {
             if (telegramNotificationService.notifyOwner(booking)) {
                 booking.setOwnerNotified(true);
