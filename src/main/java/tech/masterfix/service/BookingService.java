@@ -118,7 +118,7 @@ public class BookingService {
         response.setPreferredTime(booking.getPreferredTime());
         response.setStatus(booking.getStatus());
         response.setCreatedAt(booking.getCreatedAt());
-        response.setConfirmationCode(String.format("MF-%06d", booking.getId()));
+        response.setConfirmationCode(String.format("DF-%06d", booking.getId()));
         return response;
     }
 }
