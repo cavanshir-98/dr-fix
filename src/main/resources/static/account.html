@@ -2,21 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>DrFix — My Bookings</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        @media (max-width: 800px) { .bookings-table { display: block; overflow-x: auto; } }
-    </style>
 </head>
 <body class="account-page">
 <header class="navbar scrolled" id="navbar">
     <div class="container nav-inner">
         <a href="/" class="logo"><span class="logo-icon">⚡</span><span class="logo-text">DrFix</span></a>
-        <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/account.html" class="active">My Bookings</a></li>
-        </ul>
+        <nav class="compact-nav-links" aria-label="Account navigation">
+            <a href="/">Home</a>
+            <a href="/account.html" class="active">My Bookings</a>
+        </nav>
         <div class="nav-actions customer-nav">
             <a class="btn btn-primary btn-sm" href="/">New Booking</a>
             <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
@@ -28,7 +25,7 @@
     <h1>Customer Account</h1>
     <p class="sub">Your profile and bookings</p>
 
-    <div class="tab-group account-tabs" id="accountTabs">
+    <div class="tab-group scroll-tabs account-tabs" id="accountTabs">
         <button type="button" class="tab" data-tab="profile">Profile</button>
         <button type="button" class="tab active" data-tab="bookings">My Bookings</button>
     </div>
@@ -118,14 +115,14 @@ async function loadAccount() {
                 <tbody>
                     ${rows.map(b => `
                         <tr>
-                            <td><strong>${escapeHtml(b.confirmationCode)}</strong></td>
-                            <td><strong>${formatDate(b.preferredDate)}</strong><br><small>${formatTime(b.preferredTime)}</small></td>
-                            <td>${escapeHtml(b.address)}, ${escapeHtml(b.city)}, ${escapeHtml(b.state)}</td>
-                            <td>
+                            <td data-label="Code"><strong>${escapeHtml(b.confirmationCode)}</strong></td>
+                            <td data-label="Date / Time"><strong>${formatDate(b.preferredDate)}</strong><br><small>${formatTime(b.preferredTime)}</small></td>
+                            <td data-label="Address">${escapeHtml(b.address)}, ${escapeHtml(b.city)}, ${escapeHtml(b.state)}</td>
+                            <td data-label="Service">
                                 ${escapeHtml(b.applianceType)}
                                 ${b.description ? `<br><small>${escapeHtml(b.description)}</small>` : ''}
                             </td>
-                            <td><span class="badge">${escapeHtml(b.status || '')}</span></td>
+                            <td data-label="Status"><span class="badge">${escapeHtml(b.status || '')}</span></td>
                         </tr>
                     `).join('')}
                 </tbody>

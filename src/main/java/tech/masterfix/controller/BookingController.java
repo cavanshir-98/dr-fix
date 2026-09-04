@@ -20,17 +20,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
-public class ApiController {
+public class BookingController {
 
     private final BookingService bookingService;
     private final ContactService contactService;
     private final CustomerService customerService;
     private final ApplianceServiceRepository applianceServiceRepository;
 
-    public ApiController(BookingService bookingService,
-                         ContactService contactService,
-                         CustomerService customerService,
-                         ApplianceServiceRepository applianceServiceRepository) {
+    public BookingController(BookingService bookingService,
+                             ContactService contactService,
+                             CustomerService customerService,
+                             ApplianceServiceRepository applianceServiceRepository) {
         this.bookingService = bookingService;
         this.contactService = contactService;
         this.customerService = customerService;

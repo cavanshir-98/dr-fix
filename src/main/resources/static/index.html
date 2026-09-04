@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>DrFix — Same-Day Appliance Repair</title>
     <meta name="description" content="Professional same-day appliance repair. Certified technicians, upfront pricing, 90-day warranty.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +25,7 @@
             <li><a href="#reviews">Reviews</a></li>
             <li><a href="#faq">FAQ</a></li>
             <li><a href="#contact">Contact</a></li>
+            <li class="nav-mobile-only"><a href="#" onclick="openBookingModal(); return false;">Book Now</a></li>
             <li class="nav-mobile-only nav-member-only" hidden><a href="/account.html">My Bookings</a></li>
             <li class="nav-mobile-only nav-guest-only"><a href="/register.html">Sign Up</a></li>
             <li class="nav-mobile-only nav-guest-only"><a href="/account/login.html">Sign In</a></li>
@@ -102,7 +103,7 @@
             <h2>We Repair All Major Appliances</h2>
             <p>Residential and commercial — every brand, every model.</p>
         </div>
-        <div class="tab-group" id="serviceTabs">
+        <div class="tab-group scroll-tabs" id="serviceTabs">
             <button class="tab active" data-category="">All</button>
             <button class="tab" data-category="residential">Residential</button>
             <button class="tab" data-category="commercial">Commercial</button>

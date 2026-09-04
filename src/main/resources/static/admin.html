@@ -2,38 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>DrFix — Bookings</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .admin-wrap { max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem 3rem; }
-        .admin-wrap h1 { margin-bottom: 0.35rem; }
-        .admin-wrap .sub { color: var(--muted, #666); margin-bottom: 1.5rem; }
-        .bookings-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        .bookings-table th, .bookings-table td {
-            text-align: left; padding: 0.75rem 0.6rem; border-bottom: 1px solid rgba(0,0,0,.08); vertical-align: top;
-        }
-        .bookings-table th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: .04em; color: #666; }
-        .badge {
-            display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
-            font-size: 0.75rem; background: #e8f5e9; color: #1b5e20;
-        }
-        .empty { padding: 2rem; text-align: center; color: #777; }
-        .admin-toolbar { display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
-        .admin-toolbar .spacer { flex: 1; }
-        @media (max-width: 800px) {
-            .bookings-table { display: block; overflow-x: auto; }
-        }
-    </style>
 </head>
-<body>
+<body class="admin-page">
 <header class="navbar scrolled" id="navbar">
-    <div class="nav-inner">
-        <a class="logo" href="/">Dr<span>Fix</span></a>
-        <div class="nav-links">
+    <div class="container nav-inner">
+        <a href="/" class="logo"><span class="logo-icon">⚡</span><span class="logo-text">DrFix</span></a>
+        <nav class="compact-nav-links" aria-label="Admin navigation">
             <a href="/">Home</a>
-            <a href="/admin.html">Bookings</a>
-            <a href="/logout">Logout</a>
+            <a href="/admin.html" class="active">Bookings</a>
+        </nav>
+        <div class="nav-actions">
+            <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
         </div>
     </div>
 </header>
@@ -48,14 +30,14 @@
         <a class="btn btn-outline btn-sm" href="/logout">Logout</a>
     </div>
     <div id="bookingsRoot">
-        <p class="empty">Loading...</p>
+        <p class="account-empty">Loading...</p>
     </div>
 </main>
 
 <script>
 async function loadBookings() {
     const root = document.getElementById('bookingsRoot');
-    root.innerHTML = '<p class="empty">Loading...</p>';
+    root.innerHTML = '<p class="account-empty">Loading...</p>';
     try {
         const res = await fetch('/api/bookings', { credentials: 'same-origin' });
         if (res.status === 401 || res.status === 403) {
@@ -67,7 +49,7 @@ async function loadBookings() {
         const rows = json.data || [];
         document.getElementById('countLabel').textContent = rows.length + ' booking(s)';
         if (!rows.length) {
-            root.innerHTML = '<p class="empty">No bookings yet.</p>';
+            root.innerHTML = '<p class="account-empty">No bookings yet.</p>';
             return;
         }
         root.innerHTML = `
@@ -85,25 +67,25 @@ async function loadBookings() {
                 <tbody>
                     ${rows.map(b => `
                         <tr>
-                            <td><strong>${b.confirmationCode}</strong></td>
-                            <td>
+                            <td data-label="Code"><strong>${escapeHtml(b.confirmationCode)}</strong></td>
+                            <td data-label="Customer">
                                 ${escapeHtml(b.fullName)}<br>
                                 <small>${escapeHtml(b.phone)} · ${escapeHtml(b.email)}</small>
                             </td>
-                            <td>${b.preferredDate}<br><small>${b.preferredTime}</small></td>
-                            <td>${escapeHtml(b.address)}, ${escapeHtml(b.city)}, ${escapeHtml(b.state)} ${escapeHtml(b.zipCode || '')}</td>
-                            <td>
+                            <td data-label="Date / Time">${escapeHtml(b.preferredDate)}<br><small>${escapeHtml(b.preferredTime)}</small></td>
+                            <td data-label="Address">${escapeHtml(b.address)}, ${escapeHtml(b.city)}, ${escapeHtml(b.state)} ${escapeHtml(b.zipCode || '')}</td>
+                            <td data-label="Service">
                                 ${escapeHtml(b.applianceType)}
                                 ${b.description ? `<br><small>${escapeHtml(b.description)}</small>` : ''}
                             </td>
-                            <td><span class="badge">${escapeHtml(b.status || '')}</span></td>
+                            <td data-label="Status"><span class="badge">${escapeHtml(b.status || '')}</span></td>
                         </tr>
                     `).join('')}
                 </tbody>
             </table>
         `;
     } catch (e) {
-        root.innerHTML = '<p class="empty">Failed to load bookings. Is the server running?</p>';
+        root.innerHTML = '<p class="account-empty">Failed to load bookings. Is the server running?</p>';
     }
 }
 
