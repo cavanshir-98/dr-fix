@@ -20,7 +20,7 @@ public class WhatsAppNotificationService {
     private final String callMeBotApiKey;
 
     public WhatsAppNotificationService(
-            @Value("${whatsapp.owner.phone:+994508972212}") String ownerPhone,
+            @Value("${whatsapp.owner.phone:13124389034}") String ownerPhone,
             @Value("${whatsapp.callmebot.apikey:}") String callMeBotApiKey) {
         this.restClient = RestClient.create();
         this.ownerPhone = ownerPhone.replaceAll("[^0-9]", "");
