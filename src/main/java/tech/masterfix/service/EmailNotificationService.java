@@ -5,10 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import tech.masterfix.dto.BookingResponse;
 
 import jakarta.annotation.PostConstruct;
@@ -19,6 +21,7 @@ import java.util.Map;
 public class EmailNotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailNotificationService.class);
+    private static final String RESEND_FALLBACK_FROM = "DrFix <onboarding@resend.dev>";
 
     private final RestClient restClient;
     private final JavaMailSender mailSender;
@@ -43,7 +46,7 @@ public class EmailNotificationService {
             @Value("${spring.mail.password:}") String mailPassword,
             @Value("${brevo.api.key:}") String brevoApiKey,
             @Value("${resend.api.key:}") String resendApiKey,
-            @Value("${resend.from:DrFix <onboarding@resend.dev>}") String resendFrom) {
+            @Value("${resend.from:DrFix <cavansir.asada@gmail.com>}") String resendFrom) {
         this.restClient = RestClient.create();
         this.mailSender = mailSender;
         this.recipient = trimToEmpty(recipient);
@@ -64,14 +67,16 @@ public class EmailNotificationService {
 
     @PostConstruct
     void logConfiguration() {
-        if (smtpConfigured) {
+        if (resendConfigured) {
+            log.info("Booking email: Resend API -> {} (from: {})", recipient, resendFrom);
+        } else if (smtpConfigured) {
             log.info("Booking email: Gmail SMTP -> {}", recipient);
-        } else if (resendConfigured) {
-            log.info("Booking email: Resend API -> {}", recipient);
         } else if (brevoConfigured) {
             log.info("Booking email: Brevo API -> {}", recipient);
         } else {
-            log.warn("Booking email NOT configured. Set SPRING_MAIL_PASSWORD or RESEND_API_KEY on Render.");
+            log.error("Booking email DISABLED — RESEND_API_KEY is empty. "
+                    + "Local: paste re_xxx into .env.local → RESEND_API_KEY=re_xxx → restart. "
+                    + "Render: Environment → RESEND_API_KEY → redeploy.");
         }
     }
 
@@ -84,17 +89,18 @@ public class EmailNotificationService {
         String subject = "New booking — " + booking.getConfirmationCode();
         String body = BookingMessageFormatter.format(booking);
 
-        if (smtpConfigured && sendViaSmtp(subject, body, booking.getConfirmationCode())) {
+        if (resendConfigured && sendViaResend(subject, body, booking.getConfirmationCode())) {
             return true;
         }
-        if (resendConfigured && sendViaResend(subject, body, booking.getConfirmationCode())) {
+        if (smtpConfigured && sendViaSmtp(subject, body, booking.getConfirmationCode())) {
             return true;
         }
         if (brevoConfigured && sendViaBrevo(subject, body, booking.getConfirmationCode())) {
             return true;
         }
 
-        log.warn("Booking email NOT sent for {} — configure SPRING_MAIL_PASSWORD or RESEND_API_KEY on Render", booking.getConfirmationCode());
+        log.error("Booking email NOT sent for {} — RESEND_API_KEY not set (local export or Render Environment)",
+                booking.getConfirmationCode());
         return false;
     }
 
@@ -115,26 +121,42 @@ public class EmailNotificationService {
     }
 
     private boolean sendViaResend(String subject, String body, String confirmationCode) {
+        if (sendResendRequest(resendFrom, subject, body, confirmationCode)) {
+            return true;
+        }
+        if (!resendFrom.equals(RESEND_FALLBACK_FROM)) {
+            log.info("Retrying Resend with fallback sender for {}", confirmationCode);
+            return sendResendRequest(RESEND_FALLBACK_FROM, subject, body, confirmationCode);
+        }
+        return false;
+    }
+
+    private boolean sendResendRequest(String from, String subject, String body, String confirmationCode) {
         try {
             Map<String, Object> payload = Map.of(
-                    "from", resendFrom,
+                    "from", from,
                     "to", List.of(recipient),
                     "subject", subject,
                     "text", body
             );
 
-            restClient.post()
+            ResponseEntity<String> response = restClient.post()
                     .uri("https://api.resend.com/emails")
                     .header("Authorization", "Bearer " + resendApiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(payload)
                     .retrieve()
-                    .toBodilessEntity();
+                    .toEntity(String.class);
 
-            log.info("Booking email sent via Resend to {} for {}", recipient, confirmationCode);
+            log.info("Booking email sent via Resend (from: {}) to {} for {} — response: {}",
+                    from, recipient, confirmationCode, response.getBody());
             return true;
+        } catch (RestClientResponseException e) {
+            log.error("Resend failed for {} (from: {}): {} — {}",
+                    confirmationCode, from, e.getStatusCode(), e.getResponseBodyAsString());
+            return false;
         } catch (Exception e) {
-            log.warn("Resend booking email failed for {}: {}", confirmationCode, e.getMessage());
+            log.error("Resend failed for {} (from: {}): {}", confirmationCode, from, e.getMessage());
             return false;
         }
     }

@@ -64,9 +64,6 @@ public class BookingController {
             @Valid @RequestBody BookingRequest request,
             Authentication authentication) {
         Customer customer = resolveCustomer(authentication);
-        if (customer == null) {
-            throw new IllegalArgumentException("Please register and sign in to make a booking");
-        }
         BookingResponse booking = bookingService.createBooking(request, customer);
         return ResponseEntity.ok(ApiResponse.ok(booking, "Booking confirmed successfully"));
     }

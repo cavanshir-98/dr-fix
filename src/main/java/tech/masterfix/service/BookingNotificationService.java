@@ -20,7 +20,7 @@ public class BookingNotificationService {
 
     public void notifyOwner(BookingResponse booking) {
         booking.setWhatsappUrl(whatsAppNotificationService.buildWaMeUrl(booking));
-        emailNotificationService.notifyOwner(booking);
+        booking.setEmailSent(emailNotificationService.notifyOwner(booking));
         if (telegramNotificationService.isConfigured()) {
             if (telegramNotificationService.notifyOwner(booking)) {
                 booking.setOwnerNotified(true);

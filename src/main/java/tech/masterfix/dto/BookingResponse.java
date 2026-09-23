@@ -25,6 +25,7 @@ public class BookingResponse {
     private String whatsappUrl;
     private boolean ownerNotified;
     private String notifyChannel;
+    private boolean emailSent;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -82,4 +83,7 @@ public class BookingResponse {
 
     public String getNotifyChannel() { return notifyChannel; }
     public void setNotifyChannel(String notifyChannel) { this.notifyChannel = notifyChannel; }
+
+    public boolean isEmailSent() { return emailSent; }
+    public void setEmailSent(boolean emailSent) { this.emailSent = emailSent; }
 }

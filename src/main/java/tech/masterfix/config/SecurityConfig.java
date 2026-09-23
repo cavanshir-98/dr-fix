@@ -3,7 +3,6 @@ package tech.masterfix.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -65,7 +64,6 @@ public class SecurityConfig {
     @Order(2)
     SecurityFilterChain appSecurityFilterChain(HttpSecurity http,
                                                AuthHandlers authHandlers,
-                                               ApiAuthenticationEntryPoint apiAuthenticationEntryPoint,
                                                CustomerUserDetailsService customerUserDetailsService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -83,9 +81,9 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/services",
                                 "/api/bookings/slots",
-                                "/api/contact"
+                                "/api/contact",
+                                "/api/bookings"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("CUSTOMER")
                         .requestMatchers("/account.html", "/api/account/**").hasAnyRole("CUSTOMER", "ADMIN")
                         .anyRequest().permitAll()
                 )
@@ -97,10 +95,6 @@ public class SecurityConfig {
                                         new AntPathRequestMatcher("/account.html"),
                                         new AntPathRequestMatcher("/api/account/**")
                                 )
-                        )
-                        .defaultAuthenticationEntryPointFor(
-                                apiAuthenticationEntryPoint,
-                                new AntPathRequestMatcher("/api/bookings", "POST")
                         )
                 )
                 .formLogin(form -> form

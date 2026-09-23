@@ -31,20 +31,35 @@ public class BookingService {
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request, Customer customer) {
-        validateTimeSlot(request.getPreferredTime());
+        if (customer != null) {
+            if (request.getPreferredDate() == null || request.getPreferredTime() == null) {
+                throw new IllegalArgumentException("Preferred date and time are required");
+            }
+            validateTimeSlot(request.getPreferredTime());
+        } else if (request.getPreferredTime() != null) {
+            validateTimeSlot(request.getPreferredTime());
+        }
 
         Booking booking = new Booking();
-        booking.setFullName(customer != null ? customer.getFullName() : request.getFullName());
-        booking.setPhone(customer != null ? customer.getPhone() : request.getPhone());
-        booking.setEmail(customer != null ? customer.getEmail() : request.getEmail());
-        booking.setAddress(request.getAddress());
-        booking.setCity(request.getCity());
-        booking.setState(request.getState());
-        booking.setZipCode(request.getZipCode());
+        if (customer != null) {
+            booking.setFullName(customer.getFullName());
+            booking.setPhone(blankToDefault(request.getPhone(), customer.getPhone()));
+            booking.setEmail(customer.getEmail());
+            booking.setPreferredDate(request.getPreferredDate());
+            booking.setPreferredTime(request.getPreferredTime());
+        } else {
+            booking.setFullName(blankToDefault(request.getFullName(), "Guest"));
+            booking.setPhone(request.getPhone().trim());
+            booking.setEmail(blankToDefault(request.getEmail(), "-"));
+            booking.setPreferredDate(null);
+            booking.setPreferredTime(null);
+        }
+        booking.setAddress(blankToDefault(request.getAddress(), "-"));
+        booking.setCity(blankToDefault(request.getCity(), "-"));
+        booking.setState(blankToDefault(request.getState(), "-"));
+        booking.setZipCode(blankToDefault(request.getZipCode(), "-"));
         booking.setApplianceType(request.getApplianceType());
-        booking.setDescription(request.getDescription());
-        booking.setPreferredDate(request.getPreferredDate());
-        booking.setPreferredTime(request.getPreferredTime());
+        booking.setDescription(blankToDefault(request.getDescription(), "-"));
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCustomer(customer);
 
@@ -75,6 +90,7 @@ public class BookingService {
     public List<String> getAvailableTimeSlots(LocalDate date) {
         List<LocalTime> booked = bookingRepository.findByPreferredDate(date).stream()
                 .map(Booking::getPreferredTime)
+                .filter(time -> time != null)
                 .toList();
 
         return generateTimeSlots().stream()
@@ -84,6 +100,9 @@ public class BookingService {
     }
 
     private void validateTimeSlot(LocalTime time) {
+        if (time == null) {
+            return;
+        }
         if (time.isBefore(OPEN_TIME) || time.isAfter(CLOSE_TIME.minusHours(1))) {
             throw new IllegalArgumentException("Time must be between 08:00 and 19:00");
         }
@@ -120,5 +139,12 @@ public class BookingService {
         response.setCreatedAt(booking.getCreatedAt());
         response.setConfirmationCode(String.format("DF-%06d", booking.getId()));
         return response;
+    }
+
+    private static String blankToDefault(String value, String defaultValue) {
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        return value.trim();
     }
 }

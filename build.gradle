@@ -34,3 +34,15 @@ test {
 tasks.named('bootJar') {
     archiveFileName = 'app.jar'
 }
+
+tasks.named('bootRun') {
+    def envFile = file('.env.local')
+    if (envFile.exists()) {
+        envFile.eachLine { line ->
+            if (line && !line.startsWith('#') && line.contains('=')) {
+                def parts = line.split('=', 2)
+                environment parts[0].trim(), parts[1].trim()
+            }
+        }
+    }
+}

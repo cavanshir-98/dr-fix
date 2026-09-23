@@ -6,27 +6,20 @@ import java.time.LocalTime;
 
 public class BookingRequest {
 
-    @NotBlank(message = "Full name is required")
     private String fullName;
 
     @NotBlank(message = "Phone is required")
     @Pattern(regexp = "^[+]?[0-9\\s\\-()]{7,20}$", message = "Invalid phone number")
     private String phone;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email address")
     private String email;
 
-    @NotBlank(message = "Address is required")
     private String address;
 
-    @NotBlank(message = "City is required")
     private String city;
 
-    @NotBlank(message = "State is required")
     private String state;
 
-    @NotBlank(message = "Zip code is required")
     private String zipCode;
 
     @NotBlank(message = "Appliance type is required")
@@ -34,11 +27,8 @@ public class BookingRequest {
 
     private String description;
 
-    @NotNull(message = "Preferred date is required")
-    @FutureOrPresent(message = "Date must be today or in the future")
     private LocalDate preferredDate;
 
-    @NotNull(message = "Preferred time is required")
     private LocalTime preferredTime;
 
     public String getFullName() { return fullName; }

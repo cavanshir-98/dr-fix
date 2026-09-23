@@ -14,24 +14,18 @@ public class Booking {
     private Long id;
 
     @Column(nullable = false)
-    private String fullName;
-
-    @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false)
+    private String fullName;
+
     private String email;
 
-    @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false)
     private String city;
 
-    @Column(nullable = false)
     private String state;
 
-    @Column(nullable = false)
     private String zipCode;
 
     @Column(nullable = false)
@@ -40,10 +34,8 @@ public class Booking {
     @Column(length = 1000)
     private String description;
 
-    @Column(nullable = false)
     private LocalDate preferredDate;
 
-    @Column(nullable = false)
     private LocalTime preferredTime;
 
     @Enumerated(EnumType.STRING)

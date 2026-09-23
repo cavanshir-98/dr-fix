@@ -74,7 +74,7 @@ async function loadBookings() {
                                 ${escapeHtml(b.fullName)}<br>
                                 <small>${escapeHtml(b.phone)} · ${escapeHtml(b.email)}</small>
                             </td>
-                            <td data-label="Date / Time">${escapeHtml(b.preferredDate)}<br><small>${escapeHtml(b.preferredTime)}</small></td>
+                            <td data-label="Date / Time">${b.preferredDate ? escapeHtml(b.preferredDate) : 'To be scheduled'}<br><small>${b.preferredTime ? escapeHtml(b.preferredTime) : ''}</small></td>
                             <td data-label="Address">${escapeHtml(b.address)}, ${escapeHtml(b.city)}, ${escapeHtml(b.state)} ${escapeHtml(b.zipCode || '')}</td>
                             <td data-label="Service">
                                 ${escapeHtml(b.applianceType)}

@@ -245,11 +245,11 @@
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">✉️</span>
-                        <div><strong>Email</strong><a href="mailto:Drfixrepairappliancerepair@gmail.com">Drfixrepairappliancerepair@gmail.com</a></div>
+                        <div><strong>Email</strong><a href="mailto:Drfixrepair@gmail.com">Drfixrepair@gmail.com</a></div>
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">📍</span>
-                        <div><strong>Headquarters</strong><span>9515 Hoff Street Unit B, Philadelphia, PA 19115</span></div>
+                        <div><strong>Headquarters</strong><span>Headquartered in Los Angeles, CA | Serving Philadelphia, PA &amp; surrounding areas</span></div>
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">🕐</span>
@@ -314,7 +314,7 @@
                 <h4>Contact</h4>
                 <ul>
                     <li><a href="tel:+14452678814">445 267 88 14</a></li>
-                    <li><a href="mailto:Drfixrepairappliancerepair@gmail.com">Drfixrepairappliancerepair@gmail.com</a></li>
+                    <li><a href="mailto:Drfixrepair@gmail.com">Drfixrepair@gmail.com</a></li>
                 </ul>
             </div>
         </div>
@@ -331,10 +331,10 @@
 
         <!-- Step indicators -->
         <div class="booking-steps" id="bookingSteps">
-            <div class="step active" data-step="1"><span>1</span> Service</div>
-            <div class="step" data-step="2"><span>2</span> Details</div>
-            <div class="step" data-step="3"><span>3</span> Schedule</div>
-            <div class="step" data-step="4"><span>4</span> Confirm</div>
+            <div class="step active" data-step="1"><span class="step-num">1</span> Service</div>
+            <div class="step" data-step="2"><span class="step-num">2</span> <span class="step-label" id="step2Label">Phone</span></div>
+            <div class="step" data-step="3" id="bookingStepSchedule"><span class="step-num">3</span> Schedule</div>
+            <div class="step" data-step="4"><span class="step-num">4</span> Confirm</div>
         </div>
 
         <form id="bookingForm">
@@ -350,49 +350,44 @@
                 </div>
             </div>
 
-            <!-- Step 2: Personal Details -->
+            <!-- Step 2: Contact -->
             <div class="booking-panel" data-panel="2">
-                <h3>Your Information</h3>
-                <p class="panel-desc">Tell us how to reach you.</p>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" name="fullName" required placeholder="John Doe">
-                    </div>
-                    <div class="form-group">
-                        <label>Phone *</label>
-                        <input type="tel" name="phone" required placeholder="(555) 123-4567">
-                    </div>
-                </div>
+                <h3 id="step2Title">Your Phone Number</h3>
+                <p class="panel-desc" id="step2Desc">We'll call you to confirm your appointment. No account required.</p>
                 <div class="form-group">
-                    <label>Email *</label>
-                    <input type="email" name="email" required placeholder="john@example.com">
+                    <label>Phone *</label>
+                    <input type="tel" name="phone" required placeholder="(555) 123-4567" autocomplete="tel">
                 </div>
-                <div class="form-group">
-                    <label>Street Address *</label>
-                    <input type="text" name="address" required placeholder="123 Main St">
-                </div>
-                <div class="form-row form-row-3">
+
+                <div id="registeredBookingFields" hidden>
+                    <p class="panel-desc registered-hint">You're signed in. Add optional details below if you'd like.</p>
                     <div class="form-group">
-                        <label>City *</label>
-                        <input type="text" name="city" required placeholder="Philadelphia">
+                        <label>Describe the issue (optional)</label>
+                        <textarea name="description" rows="3" placeholder="e.g. Refrigerator not cooling, making loud noise..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>State *</label>
-                        <input type="text" name="state" required placeholder="TX">
+                        <label>Street Address (optional)</label>
+                        <input type="text" name="address" placeholder="123 Main St">
                     </div>
-                    <div class="form-group">
-                        <label>Zip *</label>
-                        <input type="text" name="zipCode" required placeholder="19115">
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label>City (optional)</label>
+                            <input type="text" name="city" placeholder="Philadelphia">
+                        </div>
+                        <div class="form-group">
+                            <label>State (optional)</label>
+                            <input type="text" name="state" placeholder="PA">
+                        </div>
+                        <div class="form-group">
+                            <label>Zip (optional)</label>
+                            <input type="text" name="zipCode" placeholder="19115">
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Describe the issue</label>
-                    <textarea name="description" rows="3" placeholder="e.g. Refrigerator not cooling, making loud noise..."></textarea>
-                </div>
+
                 <div class="panel-actions">
                     <button type="button" class="btn btn-ghost" onclick="prevStep(1)">Back</button>
-                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Continue</button>
+                    <button type="button" class="btn btn-primary" id="step2Next" onclick="continueFromStep2()">Continue</button>
                 </div>
             </div>
 
@@ -402,7 +397,7 @@
                 <p class="panel-desc">Choose your preferred appointment slot.</p>
                 <div class="form-group">
                     <label>Preferred Date *</label>
-                    <input type="date" name="preferredDate" id="preferredDate" required>
+                    <input type="date" name="preferredDate" id="preferredDate">
                 </div>
                 <div class="form-group">
                     <label>Available Time Slots *</label>
@@ -423,7 +418,7 @@
                 <p class="panel-desc">Please confirm your appointment details.</p>
                 <div class="booking-summary" id="bookingSummary"></div>
                 <div class="panel-actions">
-                    <button type="button" class="btn btn-ghost" onclick="prevStep(3)">Back</button>
+                    <button type="button" class="btn btn-ghost" onclick="goBackFromConfirm()">Back</button>
                     <button type="submit" class="btn btn-primary" id="submitBooking">
                         Confirm Booking
                     </button>

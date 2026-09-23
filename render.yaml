@@ -26,5 +26,7 @@ services:
         sync: false
       - key: RESEND_API_KEY
         sync: false
+      - key: RESEND_FROM
+        value: DrFix <cavansir.asada@gmail.com>
       - key: BREVO_API_KEY
         sync: false
