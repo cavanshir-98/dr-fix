@@ -21,12 +21,12 @@ services:
       - key: TELEGRAM_CHAT_ID
         sync: false
       - key: BOOKING_NOTIFICATION_EMAIL
-        value: cavansir.asada@gmail.com
+        value: cavansir.asad@gmail.com
       - key: SPRING_MAIL_PASSWORD
         sync: false
       - key: RESEND_API_KEY
         sync: false
       - key: RESEND_FROM
-        value: DrFix <cavansir.asada@gmail.com>
+        value: DrFix <onboarding@resend.dev>
       - key: BREVO_API_KEY
         sync: false

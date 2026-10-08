@@ -31,28 +31,20 @@ public class BookingService {
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request, Customer customer) {
-        if (customer != null) {
-            if (request.getPreferredDate() == null || request.getPreferredTime() == null) {
-                throw new IllegalArgumentException("Preferred date and time are required");
-            }
-            validateTimeSlot(request.getPreferredTime());
-        } else if (request.getPreferredTime() != null) {
-            validateTimeSlot(request.getPreferredTime());
+        if (request.getPreferredDate() == null || request.getPreferredTime() == null) {
+            throw new IllegalArgumentException("Preferred date and time are required");
         }
+        validateTimeSlot(request.getPreferredTime());
 
         Booking booking = new Booking();
         if (customer != null) {
             booking.setFullName(customer.getFullName());
             booking.setPhone(blankToDefault(request.getPhone(), customer.getPhone()));
             booking.setEmail(customer.getEmail());
-            booking.setPreferredDate(request.getPreferredDate());
-            booking.setPreferredTime(request.getPreferredTime());
         } else {
             booking.setFullName(blankToDefault(request.getFullName(), "Guest"));
             booking.setPhone(request.getPhone().trim());
             booking.setEmail(blankToDefault(request.getEmail(), "-"));
-            booking.setPreferredDate(null);
-            booking.setPreferredTime(null);
         }
         booking.setAddress(blankToDefault(request.getAddress(), "-"));
         booking.setCity(blankToDefault(request.getCity(), "-"));
@@ -60,6 +52,8 @@ public class BookingService {
         booking.setZipCode(blankToDefault(request.getZipCode(), "-"));
         booking.setApplianceType(request.getApplianceType());
         booking.setDescription(blankToDefault(request.getDescription(), "-"));
+        booking.setPreferredDate(request.getPreferredDate());
+        booking.setPreferredTime(request.getPreferredTime());
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCustomer(customer);
 

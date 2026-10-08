@@ -332,8 +332,8 @@
         <!-- Step indicators -->
         <div class="booking-steps" id="bookingSteps">
             <div class="step active" data-step="1"><span class="step-num">1</span> Service</div>
-            <div class="step" data-step="2"><span class="step-num">2</span> <span class="step-label" id="step2Label">Phone</span></div>
-            <div class="step" data-step="3" id="bookingStepSchedule"><span class="step-num">3</span> Schedule</div>
+            <div class="step" data-step="2"><span class="step-num">2</span> <span class="step-label">Details</span></div>
+            <div class="step" data-step="3"><span class="step-num">3</span> Schedule</div>
             <div class="step" data-step="4"><span class="step-num">4</span> Confirm</div>
         </div>
 
@@ -352,15 +352,15 @@
 
             <!-- Step 2: Contact -->
             <div class="booking-panel" data-panel="2">
-                <h3 id="step2Title">Your Phone Number</h3>
-                <p class="panel-desc" id="step2Desc">We'll call you to confirm your appointment. No account required.</p>
+                <h3>Contact &amp; Details</h3>
+                <p class="panel-desc">Phone is required. Address and issue details are optional.</p>
+                <p class="panel-desc registered-hint" id="signedInHint" hidden>You're signed in. Your phone is pre-filled below.</p>
                 <div class="form-group">
                     <label>Phone *</label>
                     <input type="tel" name="phone" required placeholder="(555) 123-4567" autocomplete="tel">
                 </div>
 
-                <div id="registeredBookingFields" hidden>
-                    <p class="panel-desc registered-hint">You're signed in. Add optional details below if you'd like.</p>
+                <div id="bookingDetailFields">
                     <div class="form-group">
                         <label>Describe the issue (optional)</label>
                         <textarea name="description" rows="3" placeholder="e.g. Refrigerator not cooling, making loud noise..."></textarea>
@@ -387,7 +387,7 @@
 
                 <div class="panel-actions">
                     <button type="button" class="btn btn-ghost" onclick="prevStep(1)">Back</button>
-                    <button type="button" class="btn btn-primary" id="step2Next" onclick="continueFromStep2()">Continue</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Continue</button>
                 </div>
             </div>
 
@@ -397,7 +397,7 @@
                 <p class="panel-desc">Choose your preferred appointment slot.</p>
                 <div class="form-group">
                     <label>Preferred Date *</label>
-                    <input type="date" name="preferredDate" id="preferredDate">
+                    <input type="date" name="preferredDate" id="preferredDate" required>
                 </div>
                 <div class="form-group">
                     <label>Available Time Slots *</label>
@@ -418,7 +418,7 @@
                 <p class="panel-desc">Please confirm your appointment details.</p>
                 <div class="booking-summary" id="bookingSummary"></div>
                 <div class="panel-actions">
-                    <button type="button" class="btn btn-ghost" onclick="goBackFromConfirm()">Back</button>
+                    <button type="button" class="btn btn-ghost" onclick="prevStep(3)">Back</button>
                     <button type="submit" class="btn btn-primary" id="submitBooking">
                         Confirm Booking
                     </button>

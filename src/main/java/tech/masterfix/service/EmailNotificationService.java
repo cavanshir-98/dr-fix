@@ -38,7 +38,7 @@ public class EmailNotificationService {
 
     public EmailNotificationService(
             @Autowired(required = false) JavaMailSender mailSender,
-            @Value("${booking.notification.email.to:cavansir.asada@gmail.com}") String recipient,
+            @Value("${booking.notification.email.to:cavansir.asad@gmail.com}") String recipient,
             @Value("${booking.notification.email.from:Drfixrepairappliancerepair@gmail.com}") String fromAddress,
             @Value("${booking.notification.email.from-name:DrFix}") String fromName,
             @Value("${spring.mail.host:}") String mailHost,
@@ -54,7 +54,7 @@ public class EmailNotificationService {
         this.fromName = trimToEmpty(fromName);
         this.mailPassword = trimToEmpty(mailPassword);
         this.brevoApiKey = trimToEmpty(brevoApiKey);
-        this.resendApiKey = trimToEmpty(resendApiKey);
+        this.resendApiKey = resolveResendApiKey(resendApiKey);
         this.resendFrom = trimToEmpty(resendFrom);
         this.smtpConfigured = mailSender != null
                 && !trimToEmpty(mailHost).isBlank()
@@ -99,8 +99,13 @@ public class EmailNotificationService {
             return true;
         }
 
-        log.error("Booking email NOT sent for {} — RESEND_API_KEY not set (local export or Render Environment)",
-                booking.getConfirmationCode());
+        if (resendConfigured || smtpConfigured || brevoConfigured) {
+            log.error("Booking email NOT sent for {} — all configured providers failed (check logs above)",
+                    booking.getConfirmationCode());
+        } else {
+            log.error("Booking email NOT sent for {} — set RESEND_API_KEY in .env.local or Render Environment",
+                    booking.getConfirmationCode());
+        }
         return false;
     }
 
@@ -121,12 +126,13 @@ public class EmailNotificationService {
     }
 
     private boolean sendViaResend(String subject, String body, String confirmationCode) {
-        if (sendResendRequest(resendFrom, subject, body, confirmationCode)) {
+        // onboarding@resend.dev works with API key only (no custom sender verification)
+        if (sendResendRequest(RESEND_FALLBACK_FROM, subject, body, confirmationCode)) {
             return true;
         }
         if (!resendFrom.equals(RESEND_FALLBACK_FROM)) {
-            log.info("Retrying Resend with fallback sender for {}", confirmationCode);
-            return sendResendRequest(RESEND_FALLBACK_FROM, subject, body, confirmationCode);
+            log.info("Retrying Resend with custom sender for {}", confirmationCode);
+            return sendResendRequest(resendFrom, subject, body, confirmationCode);
         }
         return false;
     }
@@ -188,5 +194,21 @@ public class EmailNotificationService {
 
     private static String trimToEmpty(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private static String resolveResendApiKey(String injected) {
+        String key = trimToEmpty(injected);
+        if (!key.isBlank()) {
+            return key;
+        }
+        key = trimToEmpty(System.getProperty("RESEND_API_KEY"));
+        if (!key.isBlank()) {
+            return key;
+        }
+        key = trimToEmpty(System.getProperty("resend.api.key"));
+        if (!key.isBlank()) {
+            return key;
+        }
+        return trimToEmpty(System.getenv("RESEND_API_KEY"));
     }
 }

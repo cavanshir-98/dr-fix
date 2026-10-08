@@ -117,44 +117,8 @@ async function openBookingModal() {
     if (loggedInCustomer) {
         applyCustomerProfileToBookingForm(loggedInCustomer);
     }
-    updateBookingFlowView();
-}
-
-function updateBookingFlowView() {
-    const isRegistered = !!loggedInCustomer;
-    const extraFields = document.getElementById('registeredBookingFields');
-    const title = document.getElementById('step2Title');
-    const desc = document.getElementById('step2Desc');
-    const stepLabel = document.getElementById('step2Label');
-    const scheduleStep = document.getElementById('bookingStepSchedule');
-    const step2Next = document.getElementById('step2Next');
-    const preferredDate = document.getElementById('preferredDate');
-
-    if (extraFields) extraFields.hidden = !isRegistered;
-    if (scheduleStep) scheduleStep.hidden = !isRegistered;
-    if (title) title.textContent = isRegistered ? 'Contact & Details' : 'Your Phone Number';
-    if (desc) {
-        desc.textContent = isRegistered
-            ? 'Phone is required. Address and issue details are optional.'
-            : "We'll call you to confirm your appointment. No account required.";
-    }
-    if (stepLabel) stepLabel.textContent = isRegistered ? 'Details' : 'Phone';
-    if (step2Next) step2Next.textContent = isRegistered ? 'Continue' : 'Review Booking';
-    if (preferredDate) preferredDate.required = isRegistered;
-}
-
-function continueFromStep2() {
-    if (!validateStep2()) return;
-    if (loggedInCustomer) {
-        nextStep(3);
-    } else {
-        renderSummary();
-        nextStep(4);
-    }
-}
-
-function goBackFromConfirm() {
-    prevStep(loggedInCustomer ? 3 : 2);
+    const signedInHint = document.getElementById('signedInHint');
+    if (signedInHint) signedInHint.hidden = !loggedInCustomer;
 }
 
 function closeBookingModal() {
@@ -186,7 +150,7 @@ function resetBookingForm() {
 
 function nextStep(step) {
     if (step === 3 && !validateStep2()) return;
-    if (step === 4 && loggedInCustomer) {
+    if (step === 4) {
         if (!document.getElementById('preferredTime').value) {
             showToast('Please select a time slot', 'error');
             return;
@@ -240,16 +204,12 @@ function renderSummary() {
     const addressLine = addressParts.length
         ? `<div class="summary-row"><span class="label">Address</span><span class="value">${escapeHtml(addressParts.join(', '))}</span></div>`
         : '';
-    const scheduleLines = loggedInCustomer
-        ? `<div class="summary-row"><span class="label">Date</span><span class="value">${formatDate(date)}</span></div>
-           <div class="summary-row"><span class="label">Time</span><span class="value">${formatTime(time)}</span></div>`
-        : `<div class="summary-row"><span class="label">Schedule</span><span class="value">We'll call you to confirm</span></div>`;
-
     document.getElementById('bookingSummary').innerHTML = `
         <div class="summary-row"><span class="label">Appliance</span><span class="value">${escapeHtml(selectedAppliance)}</span></div>
         <div class="summary-row"><span class="label">Phone</span><span class="value">${escapeHtml(fd.get('phone'))}</span></div>
         ${addressLine}
-        ${scheduleLines}
+        <div class="summary-row"><span class="label">Date</span><span class="value">${formatDate(date)}</span></div>
+        <div class="summary-row"><span class="label">Time</span><span class="value">${formatTime(time)}</span></div>
         ${fd.get('description') ? `<div class="summary-row"><span class="label">Issue</span><span class="value">${escapeHtml(fd.get('description'))}</span></div>` : ''}
     `;
 }
@@ -309,18 +269,15 @@ function initBookingForm() {
 
         const payload = {
             phone: fd.get('phone'),
-            applianceType: selectedAppliance
+            applianceType: selectedAppliance,
+            preferredDate: fd.get('preferredDate'),
+            preferredTime: fd.get('preferredTime'),
+            description: fd.get('description') || '',
+            address: fd.get('address') || '',
+            city: fd.get('city') || '',
+            state: fd.get('state') || '',
+            zipCode: fd.get('zipCode') || ''
         };
-
-        if (loggedInCustomer) {
-            payload.preferredDate = fd.get('preferredDate');
-            payload.preferredTime = fd.get('preferredTime');
-            payload.description = fd.get('description') || '';
-            payload.address = fd.get('address') || '';
-            payload.city = fd.get('city') || '';
-            payload.state = fd.get('state') || '';
-            payload.zipCode = fd.get('zipCode') || '';
-        }
 
         try {
             const res = await fetch(`${API}/bookings`, {
@@ -364,24 +321,26 @@ function showBookingSuccess(data) {
         ? `<div class="summary-row"><span class="label">Address</span><span class="value">${escapeHtml(addressParts.join(', '))}</span></div>`
         : '';
 
-    const scheduleHtml = data.preferredDate && data.preferredTime
-        ? `<div class="summary-row"><span class="label">Date</span><span class="value">${formatDate(data.preferredDate)}</span></div>
-           <div class="summary-row"><span class="label">Time</span><span class="value">${formatTime(data.preferredTime)}</span></div>`
-        : `<div class="summary-row"><span class="label">Schedule</span><span class="value">We'll call you to confirm</span></div>`;
-
     document.getElementById('confirmationDetails').innerHTML = `
         <div class="confirmation-code">${escapeHtml(data.confirmationCode)}</div>
         <div class="summary-row"><span class="label">Appliance</span><span class="value">${escapeHtml(data.applianceType)}</span></div>
         <div class="summary-row"><span class="label">Phone</span><span class="value">${escapeHtml(data.phone)}</span></div>
         ${addressHtml}
-        ${scheduleHtml}
+        <div class="summary-row"><span class="label">Date</span><span class="value">${formatDate(data.preferredDate)}</span></div>
+        <div class="summary-row"><span class="label">Time</span><span class="value">${formatTime(data.preferredTime)}</span></div>
         ${data.description ? `<div class="summary-row"><span class="label">Issue</span><span class="value">${escapeHtml(data.description)}</span></div>` : ''}
     `;
 
     const whatsappBtn = document.getElementById('whatsappNotifyBtn');
     const whatsappHint = document.getElementById('whatsappHint');
 
-    if (data.ownerNotified || data.whatsappAutoSent) {
+    if (data.emailSent) {
+        if (whatsappBtn) whatsappBtn.hidden = true;
+        if (whatsappHint) {
+            whatsappHint.textContent = 'Booking confirmed! Our team was notified by email automatically.';
+        }
+        showToast('Booking confirmed — email sent', 'success');
+    } else if (data.ownerNotified || data.whatsappAutoSent) {
         if (whatsappBtn) whatsappBtn.hidden = true;
         if (whatsappHint) {
             const via = data.notifyChannel === 'telegram' ? 'Telegram' : 'WhatsApp';
