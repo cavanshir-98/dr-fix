@@ -21,7 +21,7 @@ services:
       - key: TELEGRAM_CHAT_ID
         sync: false
       - key: BOOKING_NOTIFICATION_EMAIL
-        value: cavansir.asad@gmail.com
+        value: drfixappliance@gmail.com
       - key: SPRING_MAIL_PASSWORD
         sync: false
       - key: RESEND_API_KEY

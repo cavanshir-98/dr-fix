@@ -38,15 +38,15 @@ public class EmailNotificationService {
 
     public EmailNotificationService(
             @Autowired(required = false) JavaMailSender mailSender,
-            @Value("${booking.notification.email.to:cavansir.asad@gmail.com}") String recipient,
-            @Value("${booking.notification.email.from:Drfixrepairappliancerepair@gmail.com}") String fromAddress,
+            @Value("${booking.notification.email.to:drfixappliance@gmail.com}") String recipient,
+            @Value("${booking.notification.email.from:drfixappliance@gmail.com}") String fromAddress,
             @Value("${booking.notification.email.from-name:DrFix}") String fromName,
             @Value("${spring.mail.host:}") String mailHost,
             @Value("${spring.mail.username:}") String mailUsername,
             @Value("${spring.mail.password:}") String mailPassword,
             @Value("${brevo.api.key:}") String brevoApiKey,
             @Value("${resend.api.key:}") String resendApiKey,
-            @Value("${resend.from:DrFix <cavansir.asada@gmail.com>}") String resendFrom) {
+            @Value("${resend.from:DrFix <onboarding@resend.dev>}") String resendFrom) {
         this.restClient = RestClient.create();
         this.mailSender = mailSender;
         this.recipient = trimToEmpty(recipient);
