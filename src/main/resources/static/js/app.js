@@ -1,6 +1,7 @@
 const API = '/api';
 let currentStep = 1;
-let selectedAppliance = '';
+let selectedAppliances = [];
+let step1AdvanceTimer = null;
 let allServices = [];
 let loggedInCustomer = null;
 
@@ -74,12 +75,16 @@ function renderServices(services) {
 
 function renderApplianceSelect(services) {
     const container = document.getElementById('applianceSelect');
-    container.innerHTML = services.map(s => `
-        <div class="appliance-option" data-name="${s.name}" onclick="selectAppliance(this, '${s.name}')">
+    container.innerHTML = services.map(s => {
+        const selected = selectedAppliances.includes(s.name) ? ' selected' : '';
+        const safeName = escapeJsString(s.name);
+        return `
+        <div class="appliance-option${selected}" data-name="${escapeAttr(s.name)}" onclick="selectAppliance(this, '${safeName}')">
             <div class="appliance-icon">${s.icon}</div>
-            <div class="appliance-name">${s.name}</div>
-        </div>
-    `).join('');
+            <div class="appliance-name">${escapeHtml(s.name)}</div>
+        </div>`;
+    }).join('');
+    updateStep1Continue();
 }
 
 function initServiceTabs() {
@@ -93,10 +98,50 @@ function initServiceTabs() {
 }
 
 function selectAppliance(el, name) {
-    document.querySelectorAll('.appliance-option').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedAppliance = name;
-    document.getElementById('step1Next').disabled = false;
+    if (step1AdvanceTimer) {
+        clearTimeout(step1AdvanceTimer);
+        step1AdvanceTimer = null;
+    }
+
+    if (el.classList.contains('selected')) {
+        el.classList.remove('selected');
+        selectedAppliances = selectedAppliances.filter(item => item !== name);
+    } else {
+        el.classList.add('selected');
+        selectedAppliances.push(name);
+    }
+
+    updateStep1Continue();
+
+    if (selectedAppliances.length === 1 && currentStep === 1) {
+        step1AdvanceTimer = setTimeout(() => {
+            if (selectedAppliances.length === 1 && currentStep === 1) {
+                nextStep(2);
+            }
+        }, 4000);
+    }
+}
+
+function getSelectedApplianceLabel() {
+    return selectedAppliances.join(', ');
+}
+
+function updateStep1Continue() {
+    const btn = document.getElementById('step1Next');
+    const hint = document.getElementById('serviceSelectionHint');
+    const count = selectedAppliances.length;
+
+    if (btn) btn.disabled = count === 0;
+
+    if (hint) {
+        if (count > 1) {
+            hint.hidden = false;
+            hint.textContent = `${count} services selected — press Continue when ready.`;
+        } else {
+            hint.hidden = true;
+            hint.textContent = '';
+        }
+    }
 }
 
 function selectApplianceAndBook(name) {
@@ -128,27 +173,30 @@ function closeBookingModal() {
 
 function resetBookingForm() {
     currentStep = 1;
-    selectedAppliance = '';
+    selectedAppliances = [];
+    if (step1AdvanceTimer) {
+        clearTimeout(step1AdvanceTimer);
+        step1AdvanceTimer = null;
+    }
     document.getElementById('bookingForm').reset();
     document.getElementById('bookingForm').hidden = false;
     document.getElementById('bookingSuccess').hidden = true;
     document.getElementById('bookingSteps').hidden = false;
     document.getElementById('viewBookingsBtn').hidden = true;
-    const whatsappBtn = document.getElementById('whatsappNotifyBtn');
-    if (whatsappBtn) {
-        whatsappBtn.hidden = true;
-        whatsappBtn.classList.remove('pulse');
-    }
     document.getElementById('preferredTime').value = '';
     document.getElementById('timeSlots').innerHTML = '<p class="slots-hint">Select a date to see available times</p>';
     document.querySelectorAll('.appliance-option').forEach(o => o.classList.remove('selected'));
-    document.getElementById('step1Next').disabled = true;
     document.getElementById('step3Next').disabled = true;
+    updateStep1Continue();
     updateSteps(1);
     showPanel(1);
 }
 
 function nextStep(step) {
+    if (step === 2 && selectedAppliances.length === 0) {
+        showToast('Please select at least one service', 'error');
+        return;
+    }
     if (step === 3 && !validateStep2()) return;
     if (step === 4) {
         if (!document.getElementById('preferredTime').value) {
@@ -205,7 +253,7 @@ function renderSummary() {
         ? `<div class="summary-row"><span class="label">Address</span><span class="value">${escapeHtml(addressParts.join(', '))}</span></div>`
         : '';
     document.getElementById('bookingSummary').innerHTML = `
-        <div class="summary-row"><span class="label">Appliance</span><span class="value">${escapeHtml(selectedAppliance)}</span></div>
+        <div class="summary-row"><span class="label">Service${selectedAppliances.length > 1 ? 's' : ''}</span><span class="value">${escapeHtml(getSelectedApplianceLabel())}</span></div>
         <div class="summary-row"><span class="label">Phone</span><span class="value">${escapeHtml(fd.get('phone'))}</span></div>
         ${addressLine}
         <div class="summary-row"><span class="label">Date</span><span class="value">${formatDate(date)}</span></div>
@@ -269,7 +317,7 @@ function initBookingForm() {
 
         const payload = {
             phone: fd.get('phone'),
-            applianceType: selectedAppliance,
+            applianceType: getSelectedApplianceLabel(),
             preferredDate: fd.get('preferredDate'),
             preferredTime: fd.get('preferredTime'),
             description: fd.get('description') || '',
@@ -331,33 +379,21 @@ function showBookingSuccess(data) {
         ${data.description ? `<div class="summary-row"><span class="label">Issue</span><span class="value">${escapeHtml(data.description)}</span></div>` : ''}
     `;
 
-    const whatsappBtn = document.getElementById('whatsappNotifyBtn');
-    const whatsappHint = document.getElementById('whatsappHint');
-
+    const successMessage = document.getElementById('bookingSuccessMessage');
     if (data.emailSent) {
-        if (whatsappBtn) whatsappBtn.hidden = true;
-        if (whatsappHint) {
-            whatsappHint.textContent = 'Booking confirmed! Our team was notified by email automatically.';
+        if (successMessage) {
+            successMessage.textContent = 'Booking confirmed! Our team was notified by email automatically.';
         }
         showToast('Booking confirmed — email sent', 'success');
-    } else if (data.ownerNotified || data.whatsappAutoSent) {
-        if (whatsappBtn) whatsappBtn.hidden = true;
-        if (whatsappHint) {
-            const via = data.notifyChannel === 'telegram' ? 'Telegram' : 'WhatsApp';
-            whatsappHint.textContent = `Booking confirmed! We notified our team via ${via}.`;
+    } else if (data.ownerNotified) {
+        if (successMessage) {
+            successMessage.textContent = 'Booking confirmed! Our team was notified via Telegram.';
         }
         showToast('Booking confirmed — notification sent', 'success');
-    } else if (whatsappBtn && data.whatsappUrl) {
-        whatsappBtn.href = data.whatsappUrl;
-        whatsappBtn.hidden = false;
-        whatsappBtn.classList.add('pulse');
-        if (whatsappHint) {
-            whatsappHint.innerHTML = 'Please tap the button below to open WhatsApp and press <strong>Send</strong> so we receive your booking.';
-        }
-        showToast('Booking confirmed — please send the WhatsApp message', 'success');
-        openWhatsAppLink(data.whatsappUrl);
     } else {
-        if (whatsappBtn) whatsappBtn.hidden = true;
+        if (successMessage) {
+            successMessage.textContent = 'Booking confirmed! Our team will contact you soon.';
+        }
         showToast('Booking saved successfully', 'success');
     }
 
@@ -374,14 +410,12 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-function openWhatsAppLink(url) {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+function escapeAttr(str) {
+    return escapeHtml(str).replace(/'/g, '&#39;');
+}
+
+function escapeJsString(str) {
+    return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 /* ===== Contact Form ===== */

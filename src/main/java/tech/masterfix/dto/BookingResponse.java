@@ -22,7 +22,6 @@ public class BookingResponse {
     private BookingStatus status;
     private LocalDateTime createdAt;
     private String confirmationCode;
-    private String whatsappUrl;
     private boolean ownerNotified;
     private String notifyChannel;
     private boolean emailSent;
@@ -71,12 +70,6 @@ public class BookingResponse {
 
     public String getConfirmationCode() { return confirmationCode; }
     public void setConfirmationCode(String confirmationCode) { this.confirmationCode = confirmationCode; }
-
-    public String getWhatsappUrl() { return whatsappUrl; }
-    public void setWhatsappUrl(String whatsappUrl) { this.whatsappUrl = whatsappUrl; }
-
-    public boolean isWhatsappAutoSent() { return ownerNotified; }
-    public void setWhatsappAutoSent(boolean whatsappAutoSent) { this.ownerNotified = whatsappAutoSent; }
 
     public boolean isOwnerNotified() { return ownerNotified; }
     public void setOwnerNotified(boolean ownerNotified) { this.ownerNotified = ownerNotified; }

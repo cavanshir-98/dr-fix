@@ -245,11 +245,11 @@
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">✉️</span>
-                        <div><strong>Email</strong><a href="mailto:Drfixrepair@gmail.com">Drfixrepair@gmail.com</a></div>
+                        <div><strong>Email</strong><a href="mailto:drfixappliance@gmail.com">drfixappliance@gmail.com</a></div>
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">📍</span>
-                        <div><strong>Headquarters</strong><span>Headquartered in Los Angeles, CA | Serving Philadelphia, PA &amp; surrounding areas</span></div>
+                        <div><strong>Service Area</strong><span>Serving Philadelphia, PA &amp; South Jersey</span></div>
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">🕐</span>
@@ -314,7 +314,7 @@
                 <h4>Contact</h4>
                 <ul>
                     <li><a href="tel:+14452678814">445 267 88 14</a></li>
-                    <li><a href="mailto:Drfixrepair@gmail.com">Drfixrepair@gmail.com</a></li>
+                    <li><a href="mailto:drfixappliance@gmail.com">drfixappliance@gmail.com</a></li>
                 </ul>
             </div>
         </div>
@@ -341,7 +341,8 @@
             <!-- Step 1: Select Service -->
             <div class="booking-panel active" data-panel="1">
                 <h3>Select Your Appliance</h3>
-                <p class="panel-desc">What needs to be repaired?</p>
+                <p class="panel-desc">Tap one service — Details opens in 4 seconds. Select several, then press Continue.</p>
+                <p class="panel-desc service-selection-hint" id="serviceSelectionHint" hidden></p>
                 <div class="appliance-select" id="applianceSelect">
                     <!-- Loaded dynamically -->
                 </div>
@@ -430,11 +431,8 @@
         <div class="booking-success" id="bookingSuccess" hidden>
             <div class="success-icon">✓</div>
             <h3>Booking Confirmed!</h3>
-            <p id="whatsappHint">Tap the button below to notify us on WhatsApp — then press <strong>Send</strong> in WhatsApp.</p>
+            <p id="bookingSuccessMessage">Booking confirmed! Our team will contact you soon.</p>
             <div class="confirmation-details" id="confirmationDetails"></div>
-            <a class="btn btn-primary btn-lg whatsapp-notify-btn" id="whatsappNotifyBtn" href="#" target="_blank" rel="noopener noreferrer" hidden>
-                Notify via WhatsApp
-            </a>
             <a class="btn btn-outline" id="viewBookingsBtn" href="/account.html" hidden style="margin-bottom: 0.75rem;">
                 View My Bookings
             </a>
