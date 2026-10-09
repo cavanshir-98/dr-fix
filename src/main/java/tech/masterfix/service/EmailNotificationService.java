@@ -80,6 +80,21 @@ public class EmailNotificationService {
         }
     }
 
+    public boolean isEmailConfigured() {
+        return resendConfigured || smtpConfigured || brevoConfigured;
+    }
+
+    public String getConfiguredProvider() {
+        if (resendConfigured) return "resend";
+        if (smtpConfigured) return "smtp";
+        if (brevoConfigured) return "brevo";
+        return "none";
+    }
+
+    public String getNotificationRecipient() {
+        return recipient;
+    }
+
     public boolean notifyOwner(BookingResponse booking) {
         if (recipient.isBlank()) {
             log.warn("Booking email recipient is not configured");

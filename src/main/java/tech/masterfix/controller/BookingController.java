@@ -13,9 +13,11 @@ import tech.masterfix.repository.ApplianceServiceRepository;
 import tech.masterfix.service.BookingService;
 import tech.masterfix.service.ContactService;
 import tech.masterfix.service.CustomerService;
+import tech.masterfix.service.EmailNotificationService;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -26,15 +28,27 @@ public class BookingController {
     private final ContactService contactService;
     private final CustomerService customerService;
     private final ApplianceServiceRepository applianceServiceRepository;
+    private final EmailNotificationService emailNotificationService;
 
     public BookingController(BookingService bookingService,
                              ContactService contactService,
                              CustomerService customerService,
-                             ApplianceServiceRepository applianceServiceRepository) {
+                             ApplianceServiceRepository applianceServiceRepository,
+                             EmailNotificationService emailNotificationService) {
         this.bookingService = bookingService;
         this.contactService = contactService;
         this.customerService = customerService;
         this.applianceServiceRepository = applianceServiceRepository;
+        this.emailNotificationService = emailNotificationService;
+    }
+
+    @GetMapping("/health/email")
+    public ResponseEntity<Map<String, Object>> emailHealth() {
+        return ResponseEntity.ok(Map.of(
+                "configured", emailNotificationService.isEmailConfigured(),
+                "provider", emailNotificationService.getConfiguredProvider(),
+                "recipient", emailNotificationService.getNotificationRecipient()
+        ));
     }
 
     @GetMapping("/services")

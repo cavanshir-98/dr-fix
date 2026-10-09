@@ -82,7 +82,8 @@ public class SecurityConfig {
                                 "/api/services",
                                 "/api/bookings/slots",
                                 "/api/contact",
-                                "/api/bookings"
+                                "/api/bookings",
+                                "/api/health/email"
                         ).permitAll()
                         .requestMatchers("/account.html", "/api/account/**").hasAnyRole("CUSTOMER", "ADMIN")
                         .anyRequest().permitAll()
