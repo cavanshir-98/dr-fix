@@ -330,14 +330,17 @@
         <button class="modal-close" onclick="closeBookingModal()" aria-label="Close">&times;</button>
 
         <!-- Step indicators -->
-        <div class="booking-steps" id="bookingSteps">
-            <div class="step active" data-step="1"><span class="step-num">1</span> Service</div>
-            <div class="step" data-step="2"><span class="step-num">2</span> <span class="step-label">Details</span></div>
-            <div class="step" data-step="3"><span class="step-num">3</span> Schedule</div>
-            <div class="step" data-step="4"><span class="step-num">4</span> Confirm</div>
+        <div class="booking-steps-wrap">
+            <p class="booking-step-title" id="bookingStepTitle">Service</p>
+            <div class="booking-steps" id="bookingSteps" aria-label="Booking progress">
+                <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-label">Service</span></div>
+                <div class="step" data-step="2"><span class="step-num">2</span><span class="step-label">Details</span></div>
+                <div class="step" data-step="3"><span class="step-num">3</span><span class="step-label">Schedule</span></div>
+                <div class="step" data-step="4"><span class="step-num">4</span><span class="step-label">Confirm</span></div>
+            </div>
         </div>
 
-        <form id="bookingForm">
+        <form id="bookingForm" class="booking-form">
             <!-- Step 1: Select Service -->
             <div class="booking-panel active" data-panel="1">
                 <h3>Select Your Appliance</h3>

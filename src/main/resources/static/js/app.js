@@ -1,4 +1,5 @@
 const API = '/api';
+const BOOKING_STEP_LABELS = ['Service', 'Details', 'Schedule', 'Confirm'];
 let currentStep = 1;
 let selectedAppliances = [];
 let step1AdvanceTimer = null;
@@ -223,12 +224,18 @@ function updateSteps(active) {
         if (num === active) s.classList.add('active');
         else if (num < active) s.classList.add('completed');
     });
+    const titleEl = document.getElementById('bookingStepTitle');
+    if (titleEl) {
+        titleEl.textContent = BOOKING_STEP_LABELS[active - 1] || '';
+    }
 }
 
 function showPanel(num) {
     document.querySelectorAll('.booking-panel').forEach(p => {
         p.classList.toggle('active', parseInt(p.dataset.panel) === num);
     });
+    const form = document.getElementById('bookingForm');
+    if (form) form.scrollTop = 0;
 }
 
 function validateStep2() {

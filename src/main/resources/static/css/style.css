@@ -1135,17 +1135,28 @@ img { max-width: 100%; display: block; }
 
 .modal {
     position: relative;
+    display: flex;
+    flex-direction: column;
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
-    overflow-y: auto;
+    max-height: 90dvh;
+    overflow: hidden;
     padding: 32px;
     box-shadow: var(--shadow-lg);
     transform: translateY(20px) scale(0.97);
     transition: transform var(--transition);
+}
+
+.booking-form {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 2px;
 }
 
 .modal-overlay.active .modal {
@@ -1177,22 +1188,40 @@ img { max-width: 100%; display: block; }
 }
 
 /* ===== Booking Steps ===== */
+.booking-steps-wrap {
+    flex-shrink: 0;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.booking-step-title {
+    display: none;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 12px;
+    color: var(--text);
+}
+
 .booking-steps {
     display: flex;
     gap: 8px;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
 }
 
 .step {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.75rem;
     color: var(--text-dim);
     font-weight: 500;
+    text-align: center;
+    min-width: 0;
 }
 
 .step .step-num {
@@ -1211,6 +1240,8 @@ img { max-width: 100%; display: block; }
 
 .step-label {
     font-weight: inherit;
+    line-height: 1.2;
+    word-break: break-word;
 }
 
 .step.active { color: var(--primary-light); }
@@ -1228,7 +1259,10 @@ img { max-width: 100%; display: block; }
 }
 
 .booking-panel { display: none; }
-.booking-panel.active { display: block; }
+.booking-panel.active {
+    display: block;
+    padding-bottom: 8px;
+}
 
 .booking-panel h3 {
     font-family: var(--font-display);
@@ -1255,7 +1289,12 @@ img { max-width: 100%; display: block; }
     gap: 12px;
     margin-top: 24px;
     padding-top: 16px;
+    padding-bottom: 4px;
     border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg) 85%, transparent);
+    z-index: 2;
 }
 
 /* Appliance Select */
@@ -1357,6 +1396,10 @@ img { max-width: 100%; display: block; }
 .booking-success {
     text-align: center;
     padding: 24px 0;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .success-icon {
@@ -1490,7 +1533,12 @@ img { max-width: 100%; display: block; }
     .why-grid { grid-template-columns: 1fr; }
     .reviews-grid { grid-template-columns: 1fr; }
     .services-grid { grid-template-columns: 1fr; }
+    .booking-step-title { display: block; }
     .booking-steps .step .step-label { display: none; }
+    .booking-steps-wrap { margin-bottom: 16px; padding-bottom: 12px; }
+    .booking-steps { gap: 6px; }
+    .step { gap: 0; }
+    .booking-panel.active > h3 { display: none; }
     .footer-grid { grid-template-columns: 1fr; }
 
     .section { padding: 56px 0; }
@@ -1525,11 +1573,21 @@ img { max-width: 100%; display: block; }
     }
     .account-page .nav-actions .btn { flex: 1 1 auto; min-width: 0; }
 
-    .modal-overlay { padding: 12px; align-items: flex-end; }
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
     .modal {
-        padding: 24px 16px;
+        padding: 16px 16px 0;
         max-height: 92vh;
         max-height: 92dvh;
+        width: 100%;
+        max-width: 100%;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        border-bottom: none;
+    }
+    .booking-form {
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0));
     }
 
     .panel-actions {
@@ -1579,8 +1637,9 @@ img { max-width: 100%; display: block; }
 
     .booking-steps { gap: 4px; }
     .booking-steps .step .step-num {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
     }
 
     .appliance-select {
@@ -1590,12 +1649,18 @@ img { max-width: 100%; display: block; }
 
     .time-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-    .modal-overlay { padding: 0; }
     .modal {
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        max-height: 95vh;
-        max-height: 95dvh;
-        padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0));
+        max-height: 96vh;
+        max-height: 96dvh;
+    }
+
+    .booking-panel h3 { font-size: 1.15rem; }
+    .panel-desc { font-size: 0.85rem; margin-bottom: 16px; }
+    .modal-close {
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
     }
 
     .auth-card, .login-card { padding: 1.25rem; }
