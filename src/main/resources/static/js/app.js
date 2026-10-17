@@ -184,8 +184,6 @@ function resetBookingForm() {
     document.getElementById('bookingSuccess').hidden = true;
     document.getElementById('bookingSteps').hidden = false;
     document.getElementById('viewBookingsBtn').hidden = true;
-    const trackBtn = document.getElementById('trackBookingBtn');
-    if (trackBtn) trackBtn.hidden = true;
     document.getElementById('preferredTime').value = '';
     document.getElementById('timeSlots').innerHTML = '<p class="slots-hint">Select a date to see available times</p>';
     document.querySelectorAll('.appliance-option').forEach(o => o.classList.remove('selected'));
@@ -413,39 +411,6 @@ function showBookingSuccess(data) {
 
     const accountBtn = document.getElementById('viewBookingsBtn');
     if (accountBtn) accountBtn.hidden = !loggedInCustomer;
-
-    const trackBtn = document.getElementById('trackBookingBtn');
-    if (trackBtn) {
-        if (loggedInCustomer) {
-            trackBtn.hidden = true;
-        } else {
-            trackBtn.hidden = false;
-            const params = new URLSearchParams({
-                code: data.confirmationCode,
-                phone: data.phone
-            });
-            trackBtn.href = `/track-booking.html?${params}`;
-            saveGuestBooking(data);
-        }
-    }
-}
-
-function saveGuestBooking(data) {
-    try {
-        const key = 'drfixGuestBookings';
-        const saved = JSON.parse(localStorage.getItem(key) || '[]');
-        const entry = {
-            confirmationCode: data.confirmationCode,
-            phone: data.phone,
-            applianceType: data.applianceType,
-            savedAt: new Date().toISOString()
-        };
-        const filtered = saved.filter(item => item.confirmationCode !== entry.confirmationCode);
-        filtered.unshift(entry);
-        localStorage.setItem(key, JSON.stringify(filtered.slice(0, 5)));
-    } catch {
-        // Ignore storage errors in private browsing mode.
-    }
 }
 
 function escapeHtml(str) {
