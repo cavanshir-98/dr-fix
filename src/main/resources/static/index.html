@@ -29,6 +29,7 @@
             <li><a href="#contact">Contact</a></li>
             <li class="nav-mobile-only"><a href="#" onclick="openBookingModal(); return false;">Book Now</a></li>
             <li class="nav-mobile-only nav-member-only" hidden><a href="/account.html">My Bookings</a></li>
+            <li class="nav-guest-only"><a href="/track-booking.html">Track Booking</a></li>
             <li class="nav-mobile-only nav-guest-only"><a href="/register.html">Sign Up</a></li>
             <li class="nav-mobile-only nav-guest-only"><a href="/account/login.html">Sign In</a></li>
         </ul>
@@ -249,7 +250,7 @@
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">📍</span>
-                        <div><strong>Service Area</strong><span>Serving Philadelphia, PA &amp; South Jersey</span></div>
+                        <div><strong>Service Area</strong><span>Serving San Francisco Bay area, CA, Philadelphia and suburbs, PA and South Jersey</span></div>
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon">🕐</span>
@@ -438,6 +439,9 @@
             <div class="confirmation-details" id="confirmationDetails"></div>
             <a class="btn btn-outline" id="viewBookingsBtn" href="/account.html" hidden style="margin-bottom: 0.75rem;">
                 View My Bookings
+            </a>
+            <a class="btn btn-outline" id="trackBookingBtn" href="/track-booking.html" hidden style="margin-bottom: 0.75rem;">
+                Track This Booking
             </a>
             <button class="btn btn-ghost" onclick="closeBookingModal()">Close</button>
         </div>

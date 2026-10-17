@@ -69,6 +69,37 @@ public class BookingService {
         return toResponse(booking);
     }
 
+    public BookingResponse lookupBooking(String confirmationCode, String phone) {
+        Long id = parseConfirmationCode(confirmationCode);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        if (!phonesMatch(booking.getPhone(), phone)) {
+            throw new IllegalArgumentException("Booking not found");
+        }
+
+        return toResponse(booking);
+    }
+
+    public List<BookingResponse> lookupBookingsByPhone(String phone) {
+        String digits = normalizePhoneDigits(phone);
+        if (digits.length() < 7) {
+            throw new IllegalArgumentException("Enter a valid phone number");
+        }
+
+        List<BookingResponse> matches = bookingRepository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(booking -> phonesMatch(booking.getPhone(), phone))
+                .limit(20)
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+
+        if (matches.isEmpty()) {
+            throw new IllegalArgumentException("No bookings found for this phone number");
+        }
+
+        return matches;
+    }
+
     public List<BookingResponse> getAllBookings() {
         return bookingRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toResponse)
@@ -140,5 +171,45 @@ public class BookingService {
             return defaultValue;
         }
         return value.trim();
+    }
+
+    private static Long parseConfirmationCode(String confirmationCode) {
+        if (confirmationCode == null || confirmationCode.isBlank()) {
+            throw new IllegalArgumentException("Confirmation code is required");
+        }
+
+        String normalized = confirmationCode.trim().toUpperCase();
+        if (normalized.startsWith("DF-")) {
+            normalized = normalized.substring(3);
+        }
+
+        try {
+            return Long.parseLong(normalized);
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Invalid confirmation code");
+        }
+    }
+
+    private static boolean phonesMatch(String storedPhone, String providedPhone) {
+        String storedDigits = normalizePhoneDigits(storedPhone);
+        String providedDigits = normalizePhoneDigits(providedPhone);
+
+        if (storedDigits.isEmpty() || providedDigits.isEmpty()) {
+            return false;
+        }
+
+        if (storedDigits.equals(providedDigits)) {
+            return true;
+        }
+
+        // Allow matching when one number includes a leading country code.
+        return storedDigits.endsWith(providedDigits) || providedDigits.endsWith(storedDigits);
+    }
+
+    private static String normalizePhoneDigits(String phone) {
+        if (phone == null) {
+            return "";
+        }
+        return phone.replaceAll("\\D", "");
     }
 }

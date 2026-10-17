@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DrFix — Track Booking</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="account-page">
+<header class="navbar scrolled" id="navbar">
+    <div class="container nav-inner">
+        <a href="/" class="logo"><span class="logo-icon">⚡</span><span class="logo-text">DrFix</span></a>
+        <nav class="compact-nav-links" aria-label="Track booking navigation">
+            <a href="/">Home</a>
+            <a href="/track-booking.html" class="active">Track Booking</a>
+        </nav>
+        <div class="nav-actions">
+            <a class="btn btn-primary btn-sm" href="/">New Booking</a>
+        </div>
+    </div>
+</header>
+
+<main class="account-wrap">
+    <h1>Track Your Booking</h1>
+    <p class="sub">Use your phone number to find bookings. Add the confirmation code if you have it.</p>
+
+    <div class="profile-card">
+        <form id="trackForm" class="track-form">
+            <div class="form-row">
+                <label for="phone">Phone number</label>
+                <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required autocomplete="tel">
+            </div>
+            <div class="form-row" id="codeRow">
+                <label for="confirmationCode">Confirmation code <span class="label-optional">(optional)</span></label>
+                <input type="text" id="confirmationCode" name="code" placeholder="DF-000026" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary" id="trackSubmit">Find Booking</button>
+        </form>
+        <p class="track-hint">Forgot your code? Leave it blank — we will show all bookings linked to your phone number.</p>
+        <p class="track-hint">Still need help? Call us from the phone number used for the booking.</p>
+    </div>
+
+    <div id="trackResult" hidden></div>
+    <div id="savedBookings" hidden></div>
+</main>
+
+<script>
+const API = '/api';
+
+function escapeHtml(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function formatTime(timeStr) {
+    if (!timeStr) return '';
+    const parts = String(timeStr).split(':');
+    const hour = parseInt(parts[0], 10);
+    const minute = parts[1] || '00';
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 || 12;
+    return `${h12}:${minute} ${ampm}`;
+}
+
+function renderBooking(data) {
+    const addressParts = [data.address, data.city, data.state, data.zipCode]
+        .filter(v => v && v !== '-');
+    const addressHtml = addressParts.length
+        ? `<div class="summary-row"><span class="label">Address</span><span class="value">${escapeHtml(addressParts.join(', '))}</span></div>`
+        : '';
+
+    return `
+        <div class="profile-card">
+            <h2>Booking Details</h2>
+            <div class="confirmation-details">
+                <div class="confirmation-code">${escapeHtml(data.confirmationCode)}</div>
+                <div class="summary-row"><span class="label">Status</span><span class="value"><span class="badge">${escapeHtml(data.status || '')}</span></span></div>
+                <div class="summary-row"><span class="label">Appliance</span><span class="value">${escapeHtml(data.applianceType)}</span></div>
+                <div class="summary-row"><span class="label">Phone</span><span class="value">${escapeHtml(data.phone)}</span></div>
+                ${addressHtml}
+                <div class="summary-row"><span class="label">Date</span><span class="value">${formatDate(data.preferredDate)}</span></div>
+                <div class="summary-row"><span class="label">Time</span><span class="value">${formatTime(data.preferredTime)}</span></div>
+                ${data.description && data.description !== '-' ? `<div class="summary-row"><span class="label">Issue</span><span class="value">${escapeHtml(data.description)}</span></div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+async function lookupBooking(code, phone) {
+    const params = new URLSearchParams({ phone });
+    if (code) params.set('code', code);
+
+    const res = await fetch(`${API}/bookings/lookup?${params}`);
+    const json = await res.json();
+
+    if (!json.success) {
+        throw new Error(json.message || 'Booking not found');
+    }
+
+    return json.data;
+}
+
+function renderBookingList(bookings) {
+    return `
+        <div class="profile-card">
+            <h2>${bookings.length} booking${bookings.length === 1 ? '' : 's'} found</h2>
+            <p class="track-hint" style="margin-top: 0;">Select a booking to view details.</p>
+            <div class="saved-booking-list">
+                ${bookings.map((item, index) => `
+                    <button type="button" class="saved-booking-item booking-result-item" data-index="${index}">
+                        <strong>${escapeHtml(item.confirmationCode)}</strong>
+                        <span>${formatDate(item.preferredDate)} · ${escapeHtml(item.applianceType || 'Booking')}</span>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+        <div id="selectedBooking"></div>
+    `;
+}
+
+function loadSavedBookings() {
+    try {
+        return JSON.parse(localStorage.getItem('drfixGuestBookings') || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function renderSavedBookings() {
+    const saved = loadSavedBookings();
+    const container = document.getElementById('savedBookings');
+
+    if (!saved.length) {
+        container.hidden = true;
+        return;
+    }
+
+    container.hidden = false;
+    container.innerHTML = `
+        <div class="profile-card">
+            <h2>Recent Bookings</h2>
+            <p class="track-hint" style="margin-top: 0;">Saved on this device after guest checkout.</p>
+            <div class="saved-booking-list">
+                ${saved.map((item, index) => `
+                    <button type="button" class="saved-booking-item" data-index="${index}">
+                        <strong>${escapeHtml(item.confirmationCode)}</strong>
+                        <span>${escapeHtml(item.applianceType || 'Booking')}</span>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    container.querySelectorAll('.saved-booking-item').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const item = saved[Number(btn.dataset.index)];
+            document.getElementById('confirmationCode').value = item.confirmationCode;
+            document.getElementById('phone').value = item.phone;
+            await runLookup(item.confirmationCode, item.phone);
+        });
+    });
+}
+
+function showSelectedBooking(data) {
+    const selected = document.getElementById('selectedBooking');
+    if (!selected) return;
+    selected.innerHTML = renderBooking(data);
+}
+
+async function runLookup(code, phone) {
+    const result = document.getElementById('trackResult');
+    const submitBtn = document.getElementById('trackSubmit');
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Searching...';
+    result.hidden = true;
+    result.innerHTML = '';
+
+    try {
+        const data = await lookupBooking(code, phone);
+
+        if (Array.isArray(data)) {
+            result.innerHTML = renderBookingList(data);
+            result.hidden = false;
+            result.querySelectorAll('.booking-result-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const booking = data[Number(btn.dataset.index)];
+                    document.getElementById('confirmationCode').value = booking.confirmationCode;
+                    showSelectedBooking(booking);
+                });
+            });
+            if (data.length === 1) {
+                document.getElementById('confirmationCode').value = data[0].confirmationCode;
+                showSelectedBooking(data[0]);
+            }
+        } else {
+            result.innerHTML = renderBooking(data);
+            result.hidden = false;
+        }
+    } catch (err) {
+        result.innerHTML = `<div class="profile-card"><p class="account-empty">${escapeHtml(err.message)}</p></div>`;
+        result.hidden = false;
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Find Booking';
+    }
+}
+
+document.getElementById('trackForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = document.getElementById('confirmationCode').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    await runLookup(code, phone);
+});
+
+const params = new URLSearchParams(window.location.search);
+const initialCode = params.get('code');
+const initialPhone = params.get('phone');
+
+if (initialCode) {
+    document.getElementById('confirmationCode').value = initialCode;
+}
+if (initialPhone) {
+    document.getElementById('phone').value = initialPhone;
+}
+
+renderSavedBookings();
+
+if (initialPhone) {
+    runLookup(initialCode || '', initialPhone);
+}
+</script>
+</body>
+</html>

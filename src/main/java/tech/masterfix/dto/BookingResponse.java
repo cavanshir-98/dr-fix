@@ -25,6 +25,7 @@ public class BookingResponse {
     private boolean ownerNotified;
     private String notifyChannel;
     private boolean emailSent;
+    private boolean smsSent;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -79,4 +80,7 @@ public class BookingResponse {
 
     public boolean isEmailSent() { return emailSent; }
     public void setEmailSent(boolean emailSent) { this.emailSent = emailSent; }
+
+    public boolean isSmsSent() { return smsSent; }
+    public void setSmsSent(boolean smsSent) { this.smsSent = smsSent; }
 }

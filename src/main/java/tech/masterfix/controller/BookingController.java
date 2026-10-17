@@ -14,6 +14,7 @@ import tech.masterfix.service.BookingService;
 import tech.masterfix.service.ContactService;
 import tech.masterfix.service.CustomerService;
 import tech.masterfix.service.EmailNotificationService;
+import tech.masterfix.service.SmsNotificationService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,17 +30,20 @@ public class BookingController {
     private final CustomerService customerService;
     private final ApplianceServiceRepository applianceServiceRepository;
     private final EmailNotificationService emailNotificationService;
+    private final SmsNotificationService smsNotificationService;
 
     public BookingController(BookingService bookingService,
                              ContactService contactService,
                              CustomerService customerService,
                              ApplianceServiceRepository applianceServiceRepository,
-                             EmailNotificationService emailNotificationService) {
+                             EmailNotificationService emailNotificationService,
+                             SmsNotificationService smsNotificationService) {
         this.bookingService = bookingService;
         this.contactService = contactService;
         this.customerService = customerService;
         this.applianceServiceRepository = applianceServiceRepository;
         this.emailNotificationService = emailNotificationService;
+        this.smsNotificationService = smsNotificationService;
     }
 
     @GetMapping("/health/email")
@@ -47,7 +51,8 @@ public class BookingController {
         return ResponseEntity.ok(Map.of(
                 "configured", emailNotificationService.isEmailConfigured(),
                 "provider", emailNotificationService.getConfiguredProvider(),
-                "recipient", emailNotificationService.getNotificationRecipient()
+                "recipient", emailNotificationService.getNotificationRecipient(),
+                "smsConfigured", smsNotificationService.isConfigured()
         ));
     }
 
@@ -80,6 +85,19 @@ public class BookingController {
         Customer customer = resolveCustomer(authentication);
         BookingResponse booking = bookingService.createBooking(request, customer);
         return ResponseEntity.ok(ApiResponse.ok(booking, "Booking confirmed successfully"));
+    }
+
+    @GetMapping("/bookings/lookup")
+    public ResponseEntity<?> lookupBooking(
+            @RequestParam(required = false) String code,
+            @RequestParam String phone) {
+        if (code != null && !code.isBlank()) {
+            BookingResponse booking = bookingService.lookupBooking(code, phone);
+            return ResponseEntity.ok(ApiResponse.ok(booking, "Booking retrieved"));
+        }
+
+        List<BookingResponse> bookings = bookingService.lookupBookingsByPhone(phone);
+        return ResponseEntity.ok(ApiResponse.ok(bookings, "Bookings retrieved"));
     }
 
     @GetMapping("/bookings/{id}")

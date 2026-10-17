@@ -8,11 +8,14 @@ public class BookingNotificationService {
 
     private final TelegramNotificationService telegramNotificationService;
     private final EmailNotificationService emailNotificationService;
+    private final SmsNotificationService smsNotificationService;
 
     public BookingNotificationService(TelegramNotificationService telegramNotificationService,
-                                      EmailNotificationService emailNotificationService) {
+                                      EmailNotificationService emailNotificationService,
+                                      SmsNotificationService smsNotificationService) {
         this.telegramNotificationService = telegramNotificationService;
         this.emailNotificationService = emailNotificationService;
+        this.smsNotificationService = smsNotificationService;
     }
 
     public void notifyOwner(BookingResponse booking) {
@@ -21,5 +24,6 @@ public class BookingNotificationService {
             booking.setOwnerNotified(true);
             booking.setNotifyChannel("telegram");
         }
+        booking.setSmsSent(smsNotificationService.notifyCustomer(booking));
     }
 }
